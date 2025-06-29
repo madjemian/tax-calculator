@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Container, Form, FormGroup, Header, Input } from 'semantic-ui-react'
+import { userInputStoreContext } from './stores/stores'
+import { useContext } from 'react'
+import { observer } from 'mobx-react-lite'
+import { NumericFormat } from 'react-number-format'
 
-function App() {
-  const [count, setCount] = useState(0)
+
+const App = observer(() => {
+  const userInputStore = useContext(userInputStoreContext)
+
+  const numberInput = (value: number, changeFunction: (value: number) => void) => {
+    return (
+      <NumericFormat value={value} customInput={Input} thousandSeparator onValueChange={(e) => changeFunction(parseFloat(e.value))} />
+    )
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Container style={{ marginTop: '2em' }}>
+      <Header as='h1' content='Tax Calculator' textAlign='center' />
+      <Container>
+        <Header as='h2' content='Earned Income'/>
+        <Form>
+          <FormGroup>
+            <Form.Field>
+              <label>Matt Salary</label>
+              {numberInput(userInputStore.salary1, userInputStore.setSalary1.bind(userInputStore))}
+            </Form.Field>
+            <Form.Field>
+              <label>Megan Salary</label>
+              {numberInput(userInputStore.salary2, userInputStore.setSalary2.bind(userInputStore))}
+            </Form.Field>
+          </FormGroup>
+        </Form>
+      </Container>
+      <Container>
+        <Header as='h2' content='Income Deductions'/>
+        <Form>
+          <FormGroup>
+            <Form.Field>
+              <label>HSA Contribution</label>
+              {numberInput(userInputStore.hsaContribution, userInputStore.setHsaContribution.bind(userInputStore))}
+            </Form.Field>
+            <Form.Field>
+              <label>401k Contribution</label>
+              {numberInput(userInputStore._401kContribution, userInputStore.set401kContribution.bind(userInputStore))}
+            </Form.Field>
+            <Form.Field>
+              <label>403b Contribution</label>
+              {numberInput(userInputStore._403bContribution, userInputStore.set403bContribution.bind(userInputStore))}
+            </Form.Field>
+          </FormGroup>
+        </Form>
+      </Container>
+    </Container>
   )
-}
+})
 
 export default App
