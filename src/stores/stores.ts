@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 import { UserInputStore, type UserInputData } from './UserInputStore'
 import { autorun } from 'mobx'
+import { Form1040Store } from '../taxforms/1040'
 
 const TAX_YEAR = '2025'
 const LOCAL_STORAGE_KEY = `taxCalculatorData-${TAX_YEAR}`
-
 
 const initialDataString = localStorage.getItem(LOCAL_STORAGE_KEY)
 let userInputStore: UserInputStore
@@ -23,6 +23,9 @@ if (initialDataString) {
   userInputStore = new UserInputStore() // Initialize with default values if no data in localStorage
 }
 export const userInputStoreContext = createContext(userInputStore)
+
+const form1040Store = new Form1040Store(userInputStore)
+export const form1040StoreContext = createContext(form1040Store)
 
 autorun(() => {
   const serializedData = userInputStore.serialize()

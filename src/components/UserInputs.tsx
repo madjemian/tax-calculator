@@ -201,12 +201,12 @@ const UserInputs = observer(() => {
   return (
     <Grid>
       <Grid.Row>
-        <Grid.Column width={10}>
+        <Grid.Column width={8}>
           <EarnedIncome store={userInputStore} />
           <IncomeDeductions store={userInputStore} />
           <InvestmentIncome store={userInputStore} />
         </Grid.Column>
-        <Grid.Column width={6}>
+        <Grid.Column width={8}>
           <TaxesPaid store={userInputStore} />
         </Grid.Column>
       </Grid.Row>
