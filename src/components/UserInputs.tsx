@@ -1,4 +1,4 @@
-import { Container, Form, FormGroup, Grid, Header, Segment, SegmentGroup } from 'semantic-ui-react'
+import { Container, Form, FormGroup, Header, Segment, SegmentGroup } from 'semantic-ui-react'
 import { userInputStoreContext } from '../stores/stores'
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
@@ -10,7 +10,7 @@ const EarnedIncome = observer((props:{store: UserInputStore}) => {
   return (
     <Container style={{ marginTop: '2em' }}>
       <Header as='h2' content='W2 Income'/>
-      <Form>
+      <Form widths='equal'>
         <SegmentGroup>
           <Segment>
             <FormGroup>
@@ -47,7 +47,7 @@ const IncomeDeductions = observer((props:{store: UserInputStore}) => {
   return (
     <Container style={{ marginTop: '2em' }}>
       <Header as='h2' content='Income Deductions'/>
-      <Form>
+      <Form widths='equal'>
         <SegmentGroup>
           <Segment>
             <FormGroup>
@@ -84,7 +84,7 @@ const InvestmentIncome = observer((props:{store: UserInputStore}) => {
   return (
     <Container style={{ marginTop: '2em' }}>
       <Header as='h2' content='Investment Income'/>
-      <Form>
+      <Form widths='equal'>
         <SegmentGroup>
           <Segment>
             <FormGroup>
@@ -127,7 +127,7 @@ const TaxesPaid = observer((props:{store: UserInputStore}) => {
   return (
     <Container style={{ marginTop: '2em' }}>
       <Header as='h2' content='Taxes Paid'/>
-      <Form>
+      <Form widths='equal'>
         <SegmentGroup>
           <Segment>
             <FormGroup>
@@ -199,18 +199,12 @@ const UserInputs = observer(() => {
   const userInputStore = useContext(userInputStoreContext)
 
   return (
-    <Grid>
-      <Grid.Row>
-        <Grid.Column width={8}>
-          <EarnedIncome store={userInputStore} />
-          <IncomeDeductions store={userInputStore} />
-          <InvestmentIncome store={userInputStore} />
-        </Grid.Column>
-        <Grid.Column width={8}>
-          <TaxesPaid store={userInputStore} />
-        </Grid.Column>
-      </Grid.Row>
-    </Grid>
+    <>
+      <EarnedIncome store={userInputStore} />
+      <IncomeDeductions store={userInputStore} />
+      <InvestmentIncome store={userInputStore} />
+      <TaxesPaid store={userInputStore} />
+    </>
   )
 })
 
