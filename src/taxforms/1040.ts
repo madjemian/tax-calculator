@@ -12,6 +12,7 @@ export const ZERO_PERCENT_CAP_GAINS_LIMIT = 94050
 export const FIFTEEN_PERCENT_CAP_GAINS_LIMIT = 583750
 export const ADDITIONAL_MEDICARE_TAX_THRESHOLD = 250000
 export const NIIT_THRESHOLD = 250000
+export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
 export class Form1040Store {
@@ -51,7 +52,7 @@ export class Form1040Store {
     const line3b = this.store.totalDividends
 
     // From Schedule D
-    const line7 = Math.max(this.scheduleDStore.line16, -3000)
+    const line7 = Math.max(this.scheduleDStore.line16, MAX_CAPITAL_LOSS_DEDUCTION)
 
     // From Schedule 1
     const line8 = this.schedule1Store.additionalIncome
@@ -131,6 +132,16 @@ export class Form1040Store {
     const line37 = this.tax - this.payments
     // if negative, return 0
     return Math.max(line37, 0)
+  }
+
+  get totalIncome(): number {
+    return this.store.totalRealIncome
+  }
+
+  get effectiveTaxRate(): number {
+    // Effective tax rate = total tax / total income
+    const rate = this.tax / this.totalIncome
+    return isNaN(rate) ? 0 : rate
   }
 }
 

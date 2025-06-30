@@ -201,4 +201,15 @@ export class UserInputStore implements UserInputData {
     return this.foreignTaxCredit
   }
 
+  get totalRealIncome(): number {
+    return (
+      this.totalW2Income +
+      this.taxableInterest +
+      this.totalDividends +
+      this.longTermCapitalGains +
+      this.shortTermCapitalGains +
+      this.taxFreeInterest
+    )
+  }
+
 }
