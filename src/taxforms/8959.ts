@@ -1,15 +1,12 @@
-import type { TaxForm } from '../types';
-import { ADDITIONAL_MEDICARE_TAX_THRESHOLD } from './1040';
+import { ADDITIONAL_MEDICARE_TAX_THRESHOLD } from './1040'
+import { TaxForm } from './TaxForm'
 
-export class Form8959 implements TaxForm {
+export class Form8959 extends TaxForm {
 
   medicareWages: number
 
-  calculations: {
-    [key: string]: () => number
-  }
-
   constructor(medicareWages: number) {
+    super()
     // Initialize the form with user input data
     this.medicareWages = medicareWages;
 

@@ -1,22 +1,16 @@
-import { makeAutoObservable } from 'mobx'
 import type { UserInputStore } from '../stores/UserInputStore'
 import { Form8959 } from './8959'
 import { Form8960 } from './8960'
-import type { TaxForm } from '../types'
+import { TaxForm } from './TaxForm'
 
 // ADDITIONAL TAXES
 // https://www.irs.gov/pub/irs-pdf/f1040s2.pdf
-export class Schedule2Store implements TaxForm {
-  // This class will represent the Schedule 1 tax form
+export class Schedule2 extends TaxForm {
   private store: UserInputStore
 
-  calculations: { [key: string]: () => number }
-
   constructor(store: UserInputStore) {
-    // Initialize the form with user input data
+    super()
     this.store = store
-    makeAutoObservable(this)
-
     this.calculations = {
       line2: () => 0, // TODO: AMT form 6251
       line3: () => this.calculations.line2(),

@@ -1,11 +1,10 @@
-import { makeAutoObservable } from 'mobx';
-import type { UserInputStore } from '../stores/UserInputStore';
-import { Schedule1Store } from './Schedule1';
-import { ScheduleAStore } from './ScheduleA';
-import { ScheduleDStore } from './ScheduleD';
-import { Schedule2Store } from './Schedule2';
-import { Schedule3Store } from './Schedule3';
-import type { TaxForm } from '../types';
+import type { UserInputStore } from '../stores/UserInputStore'
+import { Schedule1 } from './Schedule1'
+import { ScheduleA } from './ScheduleA'
+import { ScheduleD } from './ScheduleD'
+import { Schedule2 } from './Schedule2'
+import { Schedule3 } from './Schedule3'
+import { TaxForm } from './TaxForm'
 
 // magic numbers for tax year 2025
 export const STANDARD_DEDUCTION = 30000
@@ -16,30 +15,25 @@ export const NIIT_THRESHOLD = 250000
 export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
-export class Form1040Store implements TaxForm {
+export class Form1040 extends TaxForm {
   // This class will represent the 1040 tax form
 
   private store: UserInputStore
 
-  private schedule1Store: Schedule1Store
-  private schedule2Store: Schedule2Store
-
-  private scheduleAStore: ScheduleAStore
-  private scheduleDStore: ScheduleDStore
-
-  calculations: { [key: string]: () => number }
+  private schedule1: Schedule1
+  private schedule2: Schedule2
+  private schedule3: Schedule3
+  private scheduleA: ScheduleA
+  private scheduleD: ScheduleD
 
   constructor(store: UserInputStore) {
-    // Initialize the form with user input data
+    super()
     this.store = store
-
-    this.schedule1Store = new Schedule1Store(store)
-    this.schedule2Store = new Schedule2Store(store)
-
-    this.scheduleAStore = new ScheduleAStore(store)
-    this.scheduleDStore = new ScheduleDStore(store)
-
-    makeAutoObservable(this)
+    this.schedule1 = new Schedule1()
+    this.schedule2 = new Schedule2(store)
+    this.schedule3 = new Schedule3(store)
+    this.scheduleA = new ScheduleA(store)
+    this.scheduleD = new ScheduleD(store)
 
     this.calculations = {
       line1a: () => this.store.totalW2Income - this.store.totalDeductions, // W2 box 1
@@ -48,28 +42,28 @@ export class Form1040Store implements TaxForm {
       line2b: () => this.store.taxableInterest,
       line3a: () => this.store.qualifiedDividends,
       line3b: () => this.store.totalDividends,
-      line7: () => Math.max(this.scheduleDStore.line16, MAX_CAPITAL_LOSS_DEDUCTION), // From Schedule D
-      line8: () => this.schedule1Store.additionalIncome, // From Schedule 1
-      line10: () => this.schedule1Store.incomeAdjustments, // From Schedule 1
+      line7: () => Math.max(this.scheduleD.line16, MAX_CAPITAL_LOSS_DEDUCTION), // From Schedule D
+      line8: () => this.schedule1.additionalIncome, // From Schedule 1
+      line10: () => this.schedule1.incomeAdjustments, // From Schedule 1
       line9: () => this.calculations.line1z() + this.calculations.line2b() + this.calculations.line3b() + this.calculations.line7() + this.calculations.line8(), // Total income
       line11: () => this.calculations.line9() - this.calculations.line10(), // Adjusted Gross Income
-      line12: () => this.scheduleAStore.deduction, // Deduction from Schedule A
+      line12: () => this.scheduleA.deduction, // Deduction from Schedule A
       line13: () => 0, // qualified business income deduction, 8995,8995-A
       line14: () => this.calculations.line12() + this.calculations.line13(), // Total deduction
       line15: () => Math.max(this.calculations.line11() - this.calculations.line14(), 0), // Taxable Income
       line16: () => new QualifiedDividendsAndCapitalGainsWorksheet(
                       this.calculations.line15(),
                       this.calculations.line3a(),
-                      this.scheduleDStore.line15,
-                      this.scheduleDStore.line16
+                      this.scheduleD.line15,
+                      this.scheduleD.line16
                     ).calculateTax(), // Qualified Dividends and Capital Gains Tax Worksheet
-      line17: () => this.schedule2Store.tax, // Additional Taxes from Schedule 2
+      line17: () => this.schedule2.tax, // Additional Taxes from Schedule 2
       line18: () => this.calculations.line16() + this.calculations.line17(), // Total Tax
       line19: () => 0, // child tax credit
-      line20: () => new Schedule3Store(this.store).nonRefundableCredits, // Non-refundable credits from Schedule 3
+      line20: () => this.schedule3.nonRefundableCredits, // Non-refundable credits from Schedule 3
       line21: () => this.calculations.line19() + this.calculations.line20(), // Total credits
       line22: () => this.calculations.line18() - this.calculations.line21(), // Total tax after credits
-      line23: () => this.schedule2Store.otherTaxes, // Other Taxes from Schedule 2
+      line23: () => this.schedule2.otherTaxes, // Other Taxes from Schedule 2
       line24: () => this.calculations.line22() + this.calculations.line23(), // Total Tax
       line25a: () => this.store.totalWithholding, // Total withholding from W2
       line26: () => this.store.totalEstimatedTaxPaid, // Total estimated tax paid
@@ -114,19 +108,9 @@ export class Form1040Store implements TaxForm {
     // if negative, return 0
     return Math.max(this.calculations.line37(), 0)
   }
-
-  get totalIncome(): number {
-    return this.store.totalRealIncome
-  }
-
-  get effectiveTaxRate(): number {
-    // Effective tax rate = total tax / total income
-    const rate = this.tax / this.totalIncome
-    return isNaN(rate) ? 0 : rate
-  }
 }
 
-class QualifiedDividendsAndCapitalGainsWorksheet implements TaxForm {
+class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
   // This class will represent the Qualified Dividends and Capital Gains Tax Worksheet
   // It will calculate the tax based on the taxable income and qualified dividends
 
@@ -135,11 +119,8 @@ class QualifiedDividendsAndCapitalGainsWorksheet implements TaxForm {
   private longTermCapitalGains: number
   private totalCapitalGains: number
 
-  calculations: {
-    [key: string]: () => number
-  }
-
   constructor(taxableIncome: number, qualifiedDividends: number, longTermCapitalGains: number, totalCapitalGains: number) {
+    super()
     this.taxableIncome = taxableIncome
     this.qualifiedDividends = qualifiedDividends
     this.longTermCapitalGains = longTermCapitalGains

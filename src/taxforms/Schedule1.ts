@@ -1,18 +1,10 @@
-import { makeAutoObservable } from 'mobx'
-import type { UserInputStore } from '../stores/UserInputStore'
-import type { TaxForm } from '../types'
+import { TaxForm } from './TaxForm'
 
 // https://www.irs.gov/pub/irs-pdf/f1040s1.pdf
-export class Schedule1Store implements TaxForm {
-  // This class will represent the Schedule 1 tax form
-  private store: UserInputStore
+export class Schedule1 extends TaxForm {
 
-  calculations: { [key: string]: () => number }
-
-  constructor(store: UserInputStore) {
-    // Initialize the form with user input data
-    this.store = store
-    makeAutoObservable(this)
+  constructor() {
+    super()
     this.calculations = {
       // business income, Schedule C
       line3: () => 0,

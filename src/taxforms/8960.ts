@@ -1,7 +1,7 @@
-import type { TaxForm } from '../types'
 import { NIIT_THRESHOLD } from './1040'
+import { TaxForm } from './TaxForm'
 
-export class Form8960 implements TaxForm {
+export class Form8960 extends TaxForm {
 
   // https://www.irs.gov/pub/irs-pdf/f8960.pdf
 
@@ -10,11 +10,8 @@ export class Form8960 implements TaxForm {
   private netCapitalGain: number
   private modifiedAGI: number
 
-  calculations: {
-    [key: string]: () => number
-  }
-
   constructor(taxableInterest: number, ordinaryDividends: number, netCapitalGain: number, modifiedAGI: number) {
+    super()
     // Initialize the form with user input data
     this.taxableInterest = taxableInterest
     this.ordinaryDividends = ordinaryDividends
