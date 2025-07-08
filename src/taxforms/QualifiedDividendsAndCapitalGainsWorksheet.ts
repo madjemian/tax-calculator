@@ -1,4 +1,4 @@
-import { FIFTEEN_PERCENT_CAP_GAINS_LIMIT, ZERO_PERCENT_CAP_GAINS_LIMIT } from './1040'
+import { FIFTEEN_PERCENT_CAP_GAINS_LIMIT, ZERO_PERCENT_CAP_GAINS_LIMIT, TAX_BRACKETS } from './1040'
 import { TaxForm } from './TaxForm'
 
 export class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
@@ -51,23 +51,12 @@ export class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
     return this.calculations.line25()
   }
 
-  // tax brackets
-  // TODO FIND A BETTER WAY TO DO THIS
   taxLookup(amount: number): number {
-    if (amount <= 23850) {
-      return amount * 0.1
-    } else if (amount <= 96950) {
-      return (amount * .12) - 477
-    } else if (amount <= 206700) {
-      return (amount * 0.22) - 10172
-    } else if (amount <= 394600) {
-      return (amount * 0.24) - 14306
-    } else if (amount <= 501050) {
-      return (amount * 0.32) - 45874
-    } else if (amount <= 751600) {
-      return (amount * 0.35) - 60905.5
-    } else {
-      return (amount * 0.37) - 75937.5
+    for (const bracket of TAX_BRACKETS) {
+      if (amount <= bracket.max) {
+        return (amount * bracket.rate) - bracket.offset
+      }
     }
+    throw new Error(`Unable to find tax bracket for amount: ${amount}`)
   }
 }

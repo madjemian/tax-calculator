@@ -15,6 +15,17 @@ export const ADDITIONAL_MEDICARE_TAX_THRESHOLD = 250000
 export const NIIT_THRESHOLD = 250000
 export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
+// Tax brackets for tax year 2025
+export const TAX_BRACKETS = [
+  { min: 0, max: 23850, rate: 0.10, offset: 0 },
+  { min: 23850, max: 96950, rate: 0.12, offset: 477 },
+  { min: 96950, max: 206700, rate: 0.22, offset: 10172 },
+  { min: 206700, max: 394600, rate: 0.24, offset: 14306 },
+  { min: 394600, max: 501050, rate: 0.32, offset: 45874 },
+  { min: 501050, max: 751600, rate: 0.35, offset: 60905.5 },
+  { min: 751600, max: Infinity, rate: 0.37, offset: 75937.5 }
+]
+
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
 export class Form1040 extends TaxForm
         implements CalculationProvider,

@@ -1,5 +1,5 @@
-import { Form8959 } from './8959';
-import { ADDITIONAL_MEDICARE_TAX_THRESHOLD } from './1040';
+import { Form8959 } from '../8959';
+import { ADDITIONAL_MEDICARE_TAX_THRESHOLD } from '../1040';
 
 describe('Form8959', () => {
   describe('additionalMedicareTax', () => {
