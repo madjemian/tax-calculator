@@ -1,18 +1,19 @@
-import type { UserInputStore } from '../stores/UserInputStore'
 import { TaxForm } from './TaxForm'
 
 
 // https://www.irs.gov/pub/irs-pdf/f1040sd.pdf
 export class ScheduleD extends TaxForm {
-  private store: UserInputStore
+  private longTermCapitalGains: number
+  private shortTermCapitalGains: number
 
-  constructor(store: UserInputStore) {
+  constructor(longTermCapitalGains: number, shortTermCapitalGains: number) {
     super()
-    this.store = store
+    this.longTermCapitalGains = longTermCapitalGains
+    this.shortTermCapitalGains = shortTermCapitalGains
 
     this.calculations = {
-      line15: () => this.store.longTermCapitalGains, // Long-term capital gains
-      line16: () => this.store.longTermCapitalGains + this.store.shortTermCapitalGains, // Total capital gains
+      line15: () => this.longTermCapitalGains, // Long-term capital gains
+      line16: () => this.longTermCapitalGains + this.shortTermCapitalGains, // Total capital gains
     }
   }
 

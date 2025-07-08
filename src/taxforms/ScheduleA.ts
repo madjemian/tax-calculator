@@ -1,18 +1,17 @@
-import type { UserInputStore } from '../stores/UserInputStore'
 import { STANDARD_DEDUCTION } from './1040'
 import { TaxForm } from './TaxForm'
 
 // https://www.irs.gov/pub/irs-pdf/f1040sa.pdf
 export class ScheduleA extends TaxForm {
-  private store: UserInputStore
+  private propertyTaxes: number
 
-  constructor(store: UserInputStore) {
+  constructor(propertyTaxes: number) {
     super()
 
-    this.store = store
+    this.propertyTaxes = propertyTaxes
 
     this.calculations = {
-      line5b: () => this.store.propertyTaxes || 0, // Property taxes
+      line5b: () => this.propertyTaxes || 0, // Property taxes
       line17: () => this.calculations.line5b(), // Itemized deductions
     }
   }

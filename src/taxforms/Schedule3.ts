@@ -1,16 +1,15 @@
-import type { UserInputStore } from '../stores/UserInputStore'
 import { TaxForm } from './TaxForm'
 
 // https://www.irs.gov/pub/irs-pdf/f1040s3.pdf
 export class Schedule3 extends TaxForm {
-  private store: UserInputStore
+  private foreignTaxCredit: number
 
-  constructor(store: UserInputStore) {
+  constructor(foreignTaxCredit: number) {
     super()
-    this.store = store
+    this.foreignTaxCredit = foreignTaxCredit
 
     this.calculations = {
-      line1: () => this.store.foreignTaxCredit, // Foreign tax credit
+      line1: () => this.foreignTaxCredit, // Foreign tax credit
     }
   }
 

@@ -31,10 +31,19 @@ export class Form1040 extends TaxForm {
     super()
     this.store = store
     this.schedule1 = new Schedule1()
-    this.schedule2 = new Schedule2(store)
-    this.schedule3 = new Schedule3(store)
-    this.scheduleA = new ScheduleA(store)
-    this.scheduleD = new ScheduleD(store)
+    this.schedule2 = new Schedule2(
+      store.totalW2Income,
+      store.hsaContribution,
+      store.taxableInterest,
+      store.totalDividends,
+      store.totalDeductions,
+      store.taxFreeInterest,
+      store.longTermCapitalGains,
+      store.shortTermCapitalGains
+    )
+    this.schedule3 = new Schedule3(store.foreignTaxCredit)
+    this.scheduleA = new ScheduleA(store.propertyTaxes)
+    this.scheduleD = new ScheduleD(store.longTermCapitalGains, store.shortTermCapitalGains)
 
     this.calculations = {
       line1a: () => this.store.totalW2Income - this.store.totalDeductions, // W2 box 1
