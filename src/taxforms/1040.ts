@@ -16,7 +16,11 @@ export const NIIT_THRESHOLD = 250000
 export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
-export class Form1040 extends TaxForm implements CalculationProvider, CapitalGainsProvider, DeductionProvider, CreditProvider {
+export class Form1040 extends TaxForm
+        implements CalculationProvider,
+                   CapitalGainsProvider,
+                   DeductionProvider,
+                   CreditProvider {
   // This class will represent the 1040 tax form
 
   private store: UserInputStore

@@ -20,9 +20,9 @@ export class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
     this.calculations = {
       line1: () => this.taxableIncome,
       line2: () => this.qualifiedDividends,
-      line3: () => Math.min(this.longTermCapitalGains, this.totalCapitalGains),
+      line3: () => Math.max(Math.min(this.longTermCapitalGains, this.totalCapitalGains), 0),
       line4: () => this.calculations.line2() + this.calculations.line3(),
-      line5: () => this.calculations.line1() - this.calculations.line4(),
+      line5: () => Math.max(this.calculations.line1() - this.calculations.line4(), 0),
       line6: () => ZERO_PERCENT_CAP_GAINS_LIMIT,
       line7: () => Math.min(this.calculations.line1(), this.calculations.line6()),
       line8: () => Math.min(this.calculations.line5(), this.calculations.line7()),
