@@ -1,9 +1,9 @@
 import type { UserInputStore } from '../stores/UserInputStore'
 import { Schedule1 } from './Schedule1'
-import { ScheduleA } from './ScheduleA'
-import { ScheduleD } from './ScheduleD'
-import { Schedule2 } from './Schedule2'
-import { Schedule3 } from './Schedule3'
+import { ScheduleA, type DeductionProvider } from './ScheduleA'
+import { ScheduleD, type CapitalGainsProvider } from './ScheduleD'
+import { Schedule2, type CalculationProvider } from './Schedule2'
+import { Schedule3, type CreditProvider } from './Schedule3'
 import { TaxForm } from './TaxForm'
 import { QualifiedDividendsAndCapitalGainsWorksheet } from './QualifiedDividendsAndCapitalGainsWorksheet'
 
@@ -16,7 +16,7 @@ export const NIIT_THRESHOLD = 250000
 export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
-export class Form1040 extends TaxForm {
+export class Form1040 extends TaxForm implements CalculationProvider, CapitalGainsProvider, DeductionProvider, CreditProvider {
   // This class will represent the 1040 tax form
 
   private store: UserInputStore
@@ -31,19 +31,10 @@ export class Form1040 extends TaxForm {
     super()
     this.store = store
     this.schedule1 = new Schedule1()
-    this.schedule2 = new Schedule2(
-      store.totalW2Income,
-      store.hsaContribution,
-      store.taxableInterest,
-      store.totalDividends,
-      store.totalDeductions,
-      store.taxFreeInterest,
-      store.longTermCapitalGains,
-      store.shortTermCapitalGains
-    )
-    this.schedule3 = new Schedule3(store.foreignTaxCredit)
-    this.scheduleA = new ScheduleA(store.propertyTaxes)
-    this.scheduleD = new ScheduleD(store.longTermCapitalGains, store.shortTermCapitalGains)
+    this.schedule2 = new Schedule2(this)
+    this.schedule3 = new Schedule3(this)
+    this.scheduleA = new ScheduleA(this)
+    this.scheduleD = new ScheduleD(this)
 
     this.calculations = {
       line1a: () => this.store.totalW2Income - this.store.totalDeductions, // W2 box 1
@@ -117,5 +108,49 @@ export class Form1040 extends TaxForm {
   get owed(): number {
     // if negative, return 0
     return Math.max(this.calculations.line37(), 0)
+  }
+
+  // CalculationProvider implementation
+  getMedicareWages(): number {
+    return this.store.totalW2Income - this.store.hsaContribution
+  }
+
+  getAgi(): number {
+    return this.calculations.line11()
+  }
+
+  getMagi(): number {
+    return this.getAgi() + this.store.taxFreeInterest
+  }
+
+  getTaxableInterest(): number {
+    return this.store.taxableInterest
+  }
+
+  getTotalDividends(): number {
+    return this.store.totalDividends
+  }
+
+  getTotalCapitalGains(): number {
+    return this.store.longTermCapitalGains + this.store.shortTermCapitalGains
+  }
+
+  // CapitalGainsProvider implementation
+  getLongTermCapitalGains(): number {
+    return this.store.longTermCapitalGains
+  }
+
+  getShortTermCapitalGains(): number {
+    return this.store.shortTermCapitalGains
+  }
+
+  // DeductionProvider implementation
+  getPropertyTaxes(): number {
+    return this.store.propertyTaxes
+  }
+
+  // CreditProvider implementation
+  getForeignTaxCredit(): number {
+    return this.store.foreignTaxCredit
   }
 }

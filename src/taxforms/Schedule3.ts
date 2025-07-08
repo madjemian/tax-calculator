@@ -1,15 +1,19 @@
 import { TaxForm } from './TaxForm'
 
+export interface CreditProvider {
+  getForeignTaxCredit(): number
+}
+
 // https://www.irs.gov/pub/irs-pdf/f1040s3.pdf
 export class Schedule3 extends TaxForm {
-  private foreignTaxCredit: number
+  private creditProvider: CreditProvider
 
-  constructor(foreignTaxCredit: number) {
+  constructor(creditProvider: CreditProvider) {
     super()
-    this.foreignTaxCredit = foreignTaxCredit
+    this.creditProvider = creditProvider
 
     this.calculations = {
-      line1: () => this.foreignTaxCredit, // Foreign tax credit
+      line1: () => this.creditProvider.getForeignTaxCredit(), // Foreign tax credit
     }
   }
 

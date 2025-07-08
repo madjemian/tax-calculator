@@ -1,17 +1,21 @@
 import { STANDARD_DEDUCTION } from './1040'
 import { TaxForm } from './TaxForm'
 
+export interface DeductionProvider {
+  getPropertyTaxes(): number
+}
+
 // https://www.irs.gov/pub/irs-pdf/f1040sa.pdf
 export class ScheduleA extends TaxForm {
-  private propertyTaxes: number
+  private deductionProvider: DeductionProvider
 
-  constructor(propertyTaxes: number) {
+  constructor(deductionProvider: DeductionProvider) {
     super()
 
-    this.propertyTaxes = propertyTaxes
+    this.deductionProvider = deductionProvider
 
     this.calculations = {
-      line5b: () => this.propertyTaxes || 0, // Property taxes
+      line5b: () => this.deductionProvider.getPropertyTaxes() || 0, // Property taxes
       line17: () => this.calculations.line5b(), // Itemized deductions
     }
   }
