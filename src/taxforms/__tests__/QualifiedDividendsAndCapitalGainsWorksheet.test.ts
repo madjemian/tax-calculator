@@ -1,14 +1,24 @@
-import { QualifiedDividendsAndCapitalGainsWorksheet, QualifiedDividendsAndCapitalGainsProvider } from '../QualifiedDividendsAndCapitalGainsWorksheet';
+import { QualifiedDividendsAndCapitalGainsWorksheet, type QualifiedDividendsAndCapitalGainsProvider } from '../QualifiedDividendsAndCapitalGainsWorksheet';
 import { ZERO_PERCENT_CAP_GAINS_LIMIT, FIFTEEN_PERCENT_CAP_GAINS_LIMIT } from '../1040';
 
 // Mock provider for testing
 class MockQualifiedDividendsAndCapitalGainsProvider implements QualifiedDividendsAndCapitalGainsProvider {
+  private taxableIncome: number
+  private qualifiedDividends: number
+  private longTermCapitalGains: number
+  private totalCapitalGains: number
+
   constructor(
-    private taxableIncome: number,
-    private qualifiedDividends: number,
-    private longTermCapitalGains: number,
-    private totalCapitalGains: number
-  ) {}
+    taxableIncome: number,
+    qualifiedDividends: number,
+    longTermCapitalGains: number,
+    totalCapitalGains: number
+  ) {
+    this.taxableIncome = taxableIncome;
+    this.qualifiedDividends = qualifiedDividends;
+    this.longTermCapitalGains = longTermCapitalGains;
+    this.totalCapitalGains = totalCapitalGains;
+  }
 
   getTaxableIncome(): number {
     return this.taxableIncome;
