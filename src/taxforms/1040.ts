@@ -130,7 +130,7 @@ export class Form1040 extends TaxForm
     return this.calculations.line11()
   }
 
-  getMagi(): number {
+  getModifiedAGI(): number {
     return this.getAgi() + this.store.taxFreeInterest
   }
 
@@ -138,11 +138,11 @@ export class Form1040 extends TaxForm
     return this.store.taxableInterest
   }
 
-  getTotalDividends(): number {
+  getOrdinaryDividends(): number {
     return this.store.totalDividends
   }
 
-  getTotalCapitalGains(): number {
+  getNetCapitalGain(): number {
     return this.store.longTermCapitalGains + this.store.shortTermCapitalGains
   }
 

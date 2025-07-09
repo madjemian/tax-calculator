@@ -5,10 +5,10 @@ import { TaxForm } from './TaxForm'
 export interface CalculationProvider {
   getMedicareWages(): number
   getAgi(): number
-  getMagi(): number
+  getModifiedAGI(): number
   getTaxableInterest(): number
-  getTotalDividends(): number
-  getTotalCapitalGains(): number
+  getOrdinaryDividends(): number
+  getNetCapitalGain(): number
 }
 
 // ADDITIONAL TAXES
@@ -23,13 +23,8 @@ export class Schedule2 extends TaxForm {
     this.calculations = {
       line2: () => 0, // TODO: AMT form 6251
       line3: () => this.calculations.line2(),
-      line11: () => new Form8959(this.calculationProvider.getMedicareWages()).additionalMedicareTax(),
-      line12: () => new Form8960(
-                      this.calculationProvider.getTaxableInterest(),
-                      this.calculationProvider.getTotalDividends(),
-                      this.calculationProvider.getTotalCapitalGains(),
-                      this.calculationProvider.getMagi()
-                    ).netInvestmentIncomeTax(),
+      line11: () => new Form8959(this.calculationProvider).additionalMedicareTax(),
+      line12: () => new Form8960(this.calculationProvider).netInvestmentIncomeTax(),
     }
   }
 

@@ -32,7 +32,7 @@ class MockQualifiedDividendsAndCapitalGainsProvider implements QualifiedDividend
     return this.longTermCapitalGains;
   }
 
-  getTotalCapitalGains(): number {
+  getNetCapitalGain(): number {
     return this.totalCapitalGains;
   }
 }

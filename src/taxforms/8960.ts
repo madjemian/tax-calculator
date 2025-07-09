@@ -1,30 +1,29 @@
 import { NIIT_THRESHOLD } from './1040'
 import { TaxForm } from './TaxForm'
 
-export class Form8960 extends TaxForm {
+export interface NetInvestmentIncomeTaxProvider {
+  getTaxableInterest(): number
+  getOrdinaryDividends(): number
+  getNetCapitalGain(): number
+  getModifiedAGI(): number
+}
 
+export class Form8960 extends TaxForm {
   // https://www.irs.gov/pub/irs-pdf/f8960.pdf
 
-  private taxableInterest: number
-  private ordinaryDividends: number
-  private netCapitalGain: number
-  private modifiedAGI: number
+  private provider: NetInvestmentIncomeTaxProvider
 
-  constructor(taxableInterest: number, ordinaryDividends: number, netCapitalGain: number, modifiedAGI: number) {
+  constructor(provider: NetInvestmentIncomeTaxProvider) {
     super()
-    // Initialize the form with user input data
-    this.taxableInterest = taxableInterest
-    this.ordinaryDividends = ordinaryDividends
-    this.netCapitalGain = netCapitalGain
-    this.modifiedAGI = modifiedAGI // Modified Adjusted Gross Income (MAGI) = AGI + tax-exempt interest
+    this.provider = provider
 
     this.calculations = {
-      line1: () => this.taxableInterest,
-      line2: () => this.ordinaryDividends,
-      line5d: () => this.netCapitalGain,
+      line1: () => this.provider.getTaxableInterest(),
+      line2: () => this.provider.getOrdinaryDividends(),
+      line5d: () => this.provider.getNetCapitalGain(),
       line8: () => this.calculations.line1() + this.calculations.line2() + this.calculations.line5d(), // total net investment income
       line12: () => this.calculations.line8(), // Net investment Income (NII)
-      line13: () => this.modifiedAGI, // Modified Adjusted Gross Income (MAGI)
+      line13: () => this.provider.getModifiedAGI(), // Modified Adjusted Gross Income (MAGI)
       line14: () => NIIT_THRESHOLD,
       line15: () => Math.max(0, this.calculations.line13() - this.calculations.line14()), // Excess MAGI over threshold
       line16: () => Math.min(this.calculations.line12(), this.calculations.line15()), // Lesser of NII or excess MAGI
