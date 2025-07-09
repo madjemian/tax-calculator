@@ -1,15 +1,42 @@
-import { QualifiedDividendsAndCapitalGainsWorksheet } from '../QualifiedDividendsAndCapitalGainsWorksheet';
+import { QualifiedDividendsAndCapitalGainsWorksheet, QualifiedDividendsAndCapitalGainsProvider } from '../QualifiedDividendsAndCapitalGainsWorksheet';
 import { ZERO_PERCENT_CAP_GAINS_LIMIT, FIFTEEN_PERCENT_CAP_GAINS_LIMIT } from '../1040';
+
+// Mock provider for testing
+class MockQualifiedDividendsAndCapitalGainsProvider implements QualifiedDividendsAndCapitalGainsProvider {
+  constructor(
+    private taxableIncome: number,
+    private qualifiedDividends: number,
+    private longTermCapitalGains: number,
+    private totalCapitalGains: number
+  ) {}
+
+  getTaxableIncome(): number {
+    return this.taxableIncome;
+  }
+
+  getQualifiedDividends(): number {
+    return this.qualifiedDividends;
+  }
+
+  getLongTermCapitalGains(): number {
+    return this.longTermCapitalGains;
+  }
+
+  getTotalCapitalGains(): number {
+    return this.totalCapitalGains;
+  }
+}
 
 describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
   describe('calculateTax', () => {
     it('should calculate tax for low income with no qualified dividends or capital gains', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         20000, // taxableIncome
         0,     // qualifiedDividends
         0,     // longTermCapitalGains
         0      // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -18,12 +45,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should calculate tax for income below zero percent capital gains limit', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         50000, // taxableIncome (below ZERO_PERCENT_CAP_GAINS_LIMIT of 96700)
         5000,  // qualifiedDividends
         3000,  // longTermCapitalGains
         3000   // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -35,12 +63,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should calculate tax for income in 15% capital gains bracket', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         200000, // taxableIncome
         20000,  // qualifiedDividends
         10000,  // longTermCapitalGains
         10000   // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -50,12 +79,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should calculate tax for high income in 20% capital gains bracket', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         700000, // taxableIncome (above FIFTEEN_PERCENT_CAP_GAINS_LIMIT)
         50000,  // qualifiedDividends
         30000,  // longTermCapitalGains
         30000   // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -65,12 +95,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should handle edge case where qualified dividends exceed total dividends', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         100000, // taxableIncome
         15000,  // qualifiedDividends
         5000,   // longTermCapitalGains
         8000    // totalCapitalGains (> longTermCapitalGains)
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -79,12 +110,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should handle zero taxable income', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         0,     // taxableIncome
         1000,  // qualifiedDividends
         500,   // longTermCapitalGains
         500    // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
 
@@ -92,12 +124,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should validate tax bracket calculations', () => {
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         50000, // taxableIncome
         0,     // qualifiedDividends
         0,     // longTermCapitalGains
         0      // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       // Test the tax lookup directly
       expect(worksheet.taxLookup(23850)).toBe(2385); // 23850 * 0.1
@@ -110,12 +143,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
       expect(ZERO_PERCENT_CAP_GAINS_LIMIT).toBe(96700);
       expect(FIFTEEN_PERCENT_CAP_GAINS_LIMIT).toBe(600050);
 
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         ZERO_PERCENT_CAP_GAINS_LIMIT - 1000, // Just below 0% limit
         5000,  // qualifiedDividends
         3000,  // longTermCapitalGains
         3000   // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
       expect(typeof result).toBe('number');
@@ -124,24 +158,26 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
 
     it('should calculate correctly at capital gains boundary conditions', () => {
       // Test exactly at the 0% capital gains limit
-      const worksheet1 = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider1 = new MockQualifiedDividendsAndCapitalGainsProvider(
         ZERO_PERCENT_CAP_GAINS_LIMIT, // Exactly at limit
         10000, // qualifiedDividends
         5000,  // longTermCapitalGains
         5000   // totalCapitalGains
       );
+      const worksheet1 = new QualifiedDividendsAndCapitalGainsWorksheet(provider1);
 
       const result1 = worksheet1.calculateTax();
       expect(typeof result1).toBe('number');
       expect(result1).toBeGreaterThanOrEqual(0);
 
       // Test exactly at the 15% capital gains limit
-      const worksheet2 = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider2 = new MockQualifiedDividendsAndCapitalGainsProvider(
         FIFTEEN_PERCENT_CAP_GAINS_LIMIT, // Exactly at limit
         20000, // qualifiedDividends
         10000, // longTermCapitalGains
         10000  // totalCapitalGains
       );
+      const worksheet2 = new QualifiedDividendsAndCapitalGainsWorksheet(provider2);
 
       const result2 = worksheet2.calculateTax();
       expect(typeof result2).toBe('number');
@@ -150,12 +186,13 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
 
     it('should return minimum of calculated tax vs regular tax', () => {
       // Test the final comparison logic (line 25)
-      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         30000, // taxableIncome
         2000,  // qualifiedDividends
         1000,  // longTermCapitalGains
         1000   // totalCapitalGains
       );
+      const worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
 
       const result = worksheet.calculateTax();
       const regularTax = worksheet.taxLookup(30000);
@@ -169,7 +206,8 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     let worksheet: QualifiedDividendsAndCapitalGainsWorksheet;
 
     beforeEach(() => {
-      worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(0, 0, 0, 0);
+      const provider = new MockQualifiedDividendsAndCapitalGainsProvider(0, 0, 0, 0);
+      worksheet = new QualifiedDividendsAndCapitalGainsWorksheet(provider);
     });
 
     it('should calculate 10% bracket correctly', () => {

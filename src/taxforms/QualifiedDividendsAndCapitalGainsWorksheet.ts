@@ -1,26 +1,27 @@
 import { FIFTEEN_PERCENT_CAP_GAINS_LIMIT, ZERO_PERCENT_CAP_GAINS_LIMIT, TAX_BRACKETS } from './1040'
 import { TaxForm } from './TaxForm'
 
+export interface QualifiedDividendsAndCapitalGainsProvider {
+  getTaxableIncome(): number
+  getQualifiedDividends(): number
+  getLongTermCapitalGains(): number
+  getTotalCapitalGains(): number
+}
+
 export class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
   // This class will represent the Qualified Dividends and Capital Gains Tax Worksheet
   // It will calculate the tax based on the taxable income and qualified dividends
 
-  private taxableIncome: number
-  private qualifiedDividends: number
-  private longTermCapitalGains: number
-  private totalCapitalGains: number
+  private provider: QualifiedDividendsAndCapitalGainsProvider
 
-  constructor(taxableIncome: number, qualifiedDividends: number, longTermCapitalGains: number, totalCapitalGains: number) {
+  constructor(provider: QualifiedDividendsAndCapitalGainsProvider) {
     super()
-    this.taxableIncome = taxableIncome
-    this.qualifiedDividends = qualifiedDividends
-    this.longTermCapitalGains = longTermCapitalGains
-    this.totalCapitalGains = totalCapitalGains
+    this.provider = provider
 
     this.calculations = {
-      line1: () => this.taxableIncome,
-      line2: () => this.qualifiedDividends,
-      line3: () => Math.max(Math.min(this.longTermCapitalGains, this.totalCapitalGains), 0),
+      line1: () => this.provider.getTaxableIncome(),
+      line2: () => this.provider.getQualifiedDividends(),
+      line3: () => Math.max(Math.min(this.provider.getLongTermCapitalGains(), this.provider.getTotalCapitalGains()), 0),
       line4: () => this.calculations.line2() + this.calculations.line3(),
       line5: () => Math.max(this.calculations.line1() - this.calculations.line4(), 0),
       line6: () => ZERO_PERCENT_CAP_GAINS_LIMIT,

@@ -5,7 +5,7 @@ import { ScheduleD, type CapitalGainsProvider } from './ScheduleD'
 import { Schedule2, type CalculationProvider } from './Schedule2'
 import { Schedule3, type CreditProvider } from './Schedule3'
 import { TaxForm } from './TaxForm'
-import { QualifiedDividendsAndCapitalGainsWorksheet } from './QualifiedDividendsAndCapitalGainsWorksheet'
+import { QualifiedDividendsAndCapitalGainsWorksheet, type QualifiedDividendsAndCapitalGainsProvider } from './QualifiedDividendsAndCapitalGainsWorksheet'
 
 // magic numbers for tax year 2025
 export const STANDARD_DEDUCTION = 30000
@@ -31,7 +31,8 @@ export class Form1040 extends TaxForm
         implements CalculationProvider,
                    CapitalGainsProvider,
                    DeductionProvider,
-                   CreditProvider {
+                   CreditProvider,
+                   QualifiedDividendsAndCapitalGainsProvider {
   // This class will represent the 1040 tax form
 
   private store: UserInputStore
@@ -67,12 +68,7 @@ export class Form1040 extends TaxForm
       line13: () => 0, // qualified business income deduction, 8995,8995-A
       line14: () => this.calculations.line12() + this.calculations.line13(), // Total deduction
       line15: () => Math.max(this.calculations.line11() - this.calculations.line14(), 0), // Taxable Income
-      line16: () => new QualifiedDividendsAndCapitalGainsWorksheet(
-                      this.calculations.line15(),
-                      this.calculations.line3a(),
-                      this.scheduleD.line15,
-                      this.scheduleD.line16
-                    ).calculateTax(), // Qualified Dividends and Capital Gains Tax Worksheet
+      line16: () => new QualifiedDividendsAndCapitalGainsWorksheet(this).calculateTax(), // Qualified Dividends and Capital Gains Tax Worksheet
       line17: () => this.schedule2.tax, // Additional Taxes from Schedule 2
       line18: () => this.calculations.line16() + this.calculations.line17(), // Total Tax
       line19: () => 0, // child tax credit
@@ -167,5 +163,14 @@ export class Form1040 extends TaxForm
   // CreditProvider implementation
   getForeignTaxCredit(): number {
     return this.store.foreignTaxCredit
+  }
+
+  // QualifiedDividendsAndCapitalGainsProvider implementation
+  getTaxableIncome(): number {
+    return this.calculations.line15()
+  }
+
+  getQualifiedDividends(): number {
+    return this.calculations.line3a()
   }
 }
