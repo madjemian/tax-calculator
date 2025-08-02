@@ -111,7 +111,7 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
             <FormGroup>
               <Form.Field>
                 <label>Total W2 Income</label>
-                <NumberInput value={store.totalW2Income} />
+                <NumberInput value={Math.round(store.totalW2Income)} />
               </Form.Field>
             </FormGroup>
           </Segment>

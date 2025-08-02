@@ -63,15 +63,15 @@ const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
             <FormGroup>
               <Form.Field>
                 <label>Total Withholding</label>
-                <NumberInput value={store.totalWithholding} />
+                <NumberInput value={Math.round(store.totalWithholding)} />
               </Form.Field>
               <Form.Field>
                 <label>Total Estimated Tax Paid</label>
-                <NumberInput value={store.totalEstimatedTaxPaid} />
+                <NumberInput value={Math.round(store.totalEstimatedTaxPaid)} />
               </Form.Field>
               <Form.Field>
                 <label>Total Tax Credit</label>
-                <NumberInput value={store.totalTaxCredit} />
+                <NumberInput value={Math.round(store.totalTaxCredit)} />
               </Form.Field>
             </FormGroup>
           </Segment>

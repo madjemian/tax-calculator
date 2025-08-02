@@ -31,7 +31,7 @@ const DeductionsTab = observer((props: { store: UserInputStore }) => {
             <FormGroup>
               <Form.Field>
                 <label>Total Deductions</label>
-                <NumberInput value={store.totalDeductions} />
+                <NumberInput value={Math.round(store.totalDeductions)} />
               </Form.Field>
             </FormGroup>
           </Segment>
