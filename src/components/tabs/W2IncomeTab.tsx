@@ -14,18 +14,25 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
           {store.w2Income.map((w2) => (
             <Segment key={w2.id}>
               <FormGroup>
-                <Form.Field width={6}>
+                <Form.Field width={4}>
                   <label>Name</label>
                   <Input 
                     value={w2.name} 
                     onChange={(e) => store.updateW2Income(w2.id, { name: e.target.value })}
                   />
                 </Form.Field>
-                <Form.Field width={6}>
+                <Form.Field width={4}>
                   <label>Income</label>
                   <NumberInput 
                     value={w2.income} 
                     changeFunction={(value) => store.updateW2Income(w2.id, { income: value })} 
+                  />
+                </Form.Field>
+                <Form.Field width={4}>
+                  <label>Withholding</label>
+                  <NumberInput 
+                    value={w2.withholding} 
+                    changeFunction={(value) => store.updateW2Income(w2.id, { withholding: value })} 
                   />
                 </Form.Field>
                 <Form.Field width={4}>
@@ -57,7 +64,7 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
           {store.optionExercises.map((option) => (
             <Segment key={option.id}>
               <FormGroup>
-                <Form.Field width={5}>
+                <Form.Field width={4}>
                   <label>Date</label>
                   <Input 
                     type='date'
@@ -65,11 +72,18 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
                     onChange={(e) => store.updateOptionExercise(option.id, { date: e.target.value })}
                   />
                 </Form.Field>
-                <Form.Field width={7}>
+                <Form.Field width={4}>
                   <label>Amount</label>
                   <NumberInput 
                     value={option.amount} 
                     changeFunction={(value) => store.updateOptionExercise(option.id, { amount: value })} 
+                  />
+                </Form.Field>
+                <Form.Field width={4}>
+                  <label>Withholding</label>
+                  <NumberInput 
+                    value={option.withholding} 
+                    changeFunction={(value) => store.updateOptionExercise(option.id, { withholding: value })} 
                   />
                 </Form.Field>
                 <Form.Field width={4}>

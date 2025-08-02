@@ -1,6 +1,7 @@
-import { Form, FormGroup, Header, Segment, SegmentGroup } from 'semantic-ui-react'
+import { Form, FormGroup, Header, Segment, SegmentGroup, List } from 'semantic-ui-react'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
+import { NumericFormat } from 'react-number-format'
 import type { UserInputStore } from '../../stores/UserInputStore'
 
 const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
@@ -9,24 +10,27 @@ const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
   return (
     <>
       <Header as='h2' content='Taxes Paid' />
+      
+      <Header as='h3' content='Withholding Summary' />
+      <Segment>
+        <List divided>
+          <List.Item>
+            <List.Content>
+              <List.Header>W2 Withholding</List.Header>
+              <NumericFormat value={Math.round(store.totalW2Withholding)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+            </List.Content>
+          </List.Item>
+          <List.Item>
+            <List.Content>
+              <List.Header>Option Exercise Withholding</List.Header>
+              <NumericFormat value={Math.round(store.totalOptionWithholding)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+            </List.Content>
+          </List.Item>
+        </List>
+      </Segment>
+
       <Form widths='equal'>
         <SegmentGroup>
-          <Segment>
-            <FormGroup>
-              <Form.Field>
-                <label>Matt Witholding</label>
-                <NumberInput value={store.withholding1} changeFunction={store.setWithholding1.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Megan Witholding</label>
-                <NumberInput value={store.withholding2} changeFunction={store.setWithholding2.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Option Exercise Withholding</label>
-                <NumberInput value={store.optionExerciseWithholding} changeFunction={store.setOptionExerciseWithholding.bind(store)} />
-              </Form.Field>
-            </FormGroup>
-          </Segment>
           <Segment>
             <FormGroup>
               <Form.Field>

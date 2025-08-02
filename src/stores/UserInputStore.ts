@@ -120,9 +120,9 @@ export class UserInputStore implements UserInputData {
   }
 
   // Methods to update the state
-  addW2Income(name: string = 'New W2', income: number = 0) {
+  addW2Income(name: string = 'New W2', income: number = 0, withholding: number = 0) {
     const id = uuidv4()
-    this.w2Income.push({ id, name, income })
+    this.w2Income.push({ id, name, income, withholding })
   }
 
   updateW2Income(id: string, updates: Partial<Omit<W2Income, 'id'>>) {
@@ -136,9 +136,9 @@ export class UserInputStore implements UserInputData {
     this.w2Income = this.w2Income.filter(w => w.id !== id)
   }
 
-  addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0) {
+  addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0, withholding: number = 0) {
     const id = uuidv4()
-    this.optionExercises.push({ id, date, amount })
+    this.optionExercises.push({ id, date, amount, withholding })
   }
 
   updateOptionExercise(id: string, updates: Partial<Omit<OptionExercise, 'id'>>) {
@@ -215,8 +215,16 @@ export class UserInputStore implements UserInputData {
     return this.hsaContribution + this._401kContribution + this._403bContribution
   }
 
+  get totalW2Withholding(): number {
+    return this.w2Income.reduce((sum, w2) => sum + w2.withholding, 0)
+  }
+
+  get totalOptionWithholding(): number {
+    return this.optionExercises.reduce((sum, option) => sum + option.withholding, 0)
+  }
+
   get totalWithholding(): number {
-    return this.withholding1 + this.withholding2 + this.optionExerciseWithholding
+    return this.totalW2Withholding + this.totalOptionWithholding
   }
 
   get totalEstimatedTaxPaid(): number {
