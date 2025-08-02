@@ -1,20 +1,15 @@
 import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
-import type { W2Income, OptionExercise } from '../types'
+import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData } from '../types'
 
 export type UserInputData = {
   w2Income: W2Income[]
   optionExercises: OptionExercise[]
+  investmentIncome: InvestmentIncome
   hsaContribution: number
   _401kContribution: number
   _403bContribution: number
   propertyTaxes: number
-  taxFreeInterest: number
-  taxableInterest: number
-  totalDividends: number
-  qualifiedDividends: number
-  longTermCapitalGains: number
-  shortTermCapitalGains: number
   withholding1: number
   withholding2: number
   taxPaidQ1: number
@@ -33,19 +28,21 @@ export class UserInputStore implements UserInputData {
   w2Income: W2Income[] = []
   optionExercises: OptionExercise[] = []
 
+  // Investment income fields (quarterly)
+  investmentIncome: InvestmentIncome = {
+    taxFreeInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    taxableInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    qualifiedDividends: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    nonQualifiedDividends: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    longTermCapitalGains: { q1: 0, q2: 0, q3: 0, q4: 0 },
+    shortTermCapitalGains: { q1: 0, q2: 0, q3: 0, q4: 0 },
+  }
+
   // income deduction fields
   hsaContribution: number = 0
   _401kContribution: number = 0
   _403bContribution: number = 0
   propertyTaxes: number = 0
-
-  // investment income fields
-  taxFreeInterest: number = 0
-  taxableInterest: number = 0
-  totalDividends: number = 0
-  qualifiedDividends: number = 0
-  longTermCapitalGains: number = 0
-  shortTermCapitalGains: number = 0
 
   // taxes paid
   withholding1: number = 0
@@ -73,16 +70,11 @@ export class UserInputStore implements UserInputData {
     return {
       w2Income: this.w2Income,
       optionExercises: this.optionExercises,
+      investmentIncome: this.investmentIncome,
       hsaContribution: this.hsaContribution,
       _401kContribution: this._401kContribution,
       _403bContribution: this._403bContribution,
       propertyTaxes: this.propertyTaxes,
-      taxFreeInterest: this.taxFreeInterest,
-      taxableInterest: this.taxableInterest,
-      totalDividends: this.totalDividends,
-      qualifiedDividends: this.qualifiedDividends,
-      longTermCapitalGains: this.longTermCapitalGains,
-      shortTermCapitalGains: this.shortTermCapitalGains,
       withholding1: this.withholding1,
       withholding2: this.withholding2,
       taxPaidQ1: this.taxPaidQ1,
@@ -98,16 +90,18 @@ export class UserInputStore implements UserInputData {
     if (data) {
       this.w2Income = data.w2Income || []
       this.optionExercises = data.optionExercises || []
+      this.investmentIncome = {
+        taxFreeInterest: data.investmentIncome?.taxFreeInterest || { q1: 0, q2: 0, q3: 0, q4: 0 },
+        taxableInterest: data.investmentIncome?.taxableInterest || { q1: 0, q2: 0, q3: 0, q4: 0 },
+        qualifiedDividends: data.investmentIncome?.qualifiedDividends || { q1: 0, q2: 0, q3: 0, q4: 0 },
+        nonQualifiedDividends: data.investmentIncome?.nonQualifiedDividends || { q1: 0, q2: 0, q3: 0, q4: 0 },
+        longTermCapitalGains: data.investmentIncome?.longTermCapitalGains || { q1: 0, q2: 0, q3: 0, q4: 0 },
+        shortTermCapitalGains: data.investmentIncome?.shortTermCapitalGains || { q1: 0, q2: 0, q3: 0, q4: 0 },
+      }
       this.hsaContribution = data.hsaContribution
       this._401kContribution = data._401kContribution
       this._403bContribution = data._403bContribution
       this.propertyTaxes = data.propertyTaxes
-      this.taxFreeInterest = data.taxFreeInterest
-      this.taxableInterest = data.taxableInterest
-      this.totalDividends = data.totalDividends
-      this.qualifiedDividends = data.qualifiedDividends
-      this.longTermCapitalGains = data.longTermCapitalGains
-      this.shortTermCapitalGains = data.shortTermCapitalGains
       this.withholding1 = data.withholding1
       this.withholding2 = data.withholding2
       this.taxPaidQ1 = data.taxPaidQ1
@@ -150,6 +144,10 @@ export class UserInputStore implements UserInputData {
 
   removeOptionExercise(id: string) {
     this.optionExercises = this.optionExercises.filter(o => o.id !== id)
+  }
+
+  updateInvestmentIncome(category: keyof InvestmentIncome, quarter: keyof QuarterlyData, value: number) {
+    this.investmentIncome[category][quarter] = value
   }
   setHsaContribution(value: number) {
     this.hsaContribution = value
@@ -204,11 +202,45 @@ export class UserInputStore implements UserInputData {
     this.foreignTaxCredit = value
   }
 
+  // Helper method to sum quarterly data
+  private sumQuarterly(data: QuarterlyData): number {
+    return (data?.q1 ?? 0) + (data?.q2 ?? 0) + (data?.q3 ?? 0) + (data?.q4 ?? 0)
+  }
+
   // Computed properties for derived values
   get totalW2Income(): number {
     const w2Total = this.w2Income.reduce((sum, w2) => sum + w2.income, 0)
     const optionTotal = this.optionExercises.reduce((sum, option) => sum + option.amount, 0)
     return w2Total + optionTotal
+  }
+
+  // Individual investment income totals
+  get taxFreeInterest(): number {
+    return this.sumQuarterly(this.investmentIncome.taxFreeInterest)
+  }
+
+  get taxableInterest(): number {
+    return this.sumQuarterly(this.investmentIncome.taxableInterest)
+  }
+
+  get qualifiedDividends(): number {
+    return this.sumQuarterly(this.investmentIncome.qualifiedDividends)
+  }
+
+  get nonQualifiedDividends(): number {
+    return this.sumQuarterly(this.investmentIncome.nonQualifiedDividends)
+  }
+
+  get totalDividends(): number {
+    return this.qualifiedDividends + this.nonQualifiedDividends
+  }
+
+  get longTermCapitalGains(): number {
+    return this.sumQuarterly(this.investmentIncome.longTermCapitalGains)
+  }
+
+  get shortTermCapitalGains(): number {
+    return this.sumQuarterly(this.investmentIncome.shortTermCapitalGains)
   }
 
   get totalDeductions(): number {
