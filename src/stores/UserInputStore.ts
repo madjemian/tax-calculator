@@ -1,8 +1,9 @@
 import { makeAutoObservable } from 'mobx'
+import { v4 as uuidv4 } from 'uuid'
+import type { W2Income } from '../types'
 
 export type UserInputData = {
-  salary1: number
-  salary2: number
+  w2Income: W2Income[]
   optionExercise: number
   hsaContribution: number
   _401kContribution: number
@@ -29,8 +30,7 @@ export class UserInputStore implements UserInputData {
   // It will manage the state of user inputs and provide methods to update them
 
   // W2 income fields
-  salary1: number = 0
-  salary2: number = 0
+  w2Income: W2Income[] = []
   optionExercise: number = 0
 
   // income deduction fields
@@ -62,13 +62,16 @@ export class UserInputStore implements UserInputData {
     makeAutoObservable(this)
     if (initialData) {
       this.deserialize(initialData)
+    } else {
+      // Initialize with default W2 entries if no data
+      this.addW2Income('Matt', 0)
+      this.addW2Income('Megan', 0)
     }
   }
 
   serialize(): UserInputData {
     return {
-      salary1: this.salary1,
-      salary2: this.salary2,
+      w2Income: this.w2Income,
       optionExercise: this.optionExercise,
       hsaContribution: this.hsaContribution,
       _401kContribution: this._401kContribution,
@@ -93,8 +96,7 @@ export class UserInputStore implements UserInputData {
 
   deserialize(data: UserInputData) {
     if (data) {
-      this.salary1 = data.salary1
-      this.salary2 = data.salary2
+      this.w2Income = data.w2Income || []
       this.optionExercise = data.optionExercise
       this.hsaContribution = data.hsaContribution
       this._401kContribution = data._401kContribution
@@ -118,12 +120,22 @@ export class UserInputStore implements UserInputData {
   }
 
   // Methods to update the state
-  setSalary1(value: number) {
-    this.salary1 = value
+  addW2Income(name: string = 'New W2', income: number = 0) {
+    const id = uuidv4()
+    this.w2Income.push({ id, name, income })
   }
-  setSalary2(value: number) {
-    this.salary2 = value
+
+  updateW2Income(id: string, updates: Partial<Omit<W2Income, 'id'>>) {
+    const w2 = this.w2Income.find(w => w.id === id)
+    if (w2) {
+      Object.assign(w2, updates)
+    }
   }
+
+  removeW2Income(id: string) {
+    this.w2Income = this.w2Income.filter(w => w.id !== id)
+  }
+
   setOptionExercise(value: number) {
     this.optionExercise = value
   }
@@ -182,7 +194,8 @@ export class UserInputStore implements UserInputData {
 
   // Computed properties for derived values
   get totalW2Income(): number {
-    return this.salary1 + this.salary2 + this.optionExercise
+    const w2Total = this.w2Income.reduce((sum, w2) => sum + w2.income, 0)
+    return w2Total + this.optionExercise
   }
 
   get totalDeductions(): number {
