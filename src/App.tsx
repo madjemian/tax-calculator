@@ -1,6 +1,7 @@
 import { Container, Grid, Header} from 'semantic-ui-react'
 import { observer } from 'mobx-react-lite'
-import UserInputs from './components/UserInputs'
+import TabbedUserInputs from './components/tabs/TabbedUserInputs'
+import InputSummary from './components/InputSummary'
 import Calculated from './components/Calculated'
 
 const App = observer(() => {
@@ -10,10 +11,10 @@ const App = observer(() => {
       <Grid>
         <Grid.Row>
           <Grid.Column width={3}>
-            Previous Inputs
+            <InputSummary />
           </Grid.Column>
           <Grid.Column width={10}>
-            <UserInputs />
+            <TabbedUserInputs />
           </Grid.Column>
           <Grid.Column width={3}>
             <Calculated />
