@@ -1,10 +1,10 @@
 import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
-import type { W2Income } from '../types'
+import type { W2Income, OptionExercise } from '../types'
 
 export type UserInputData = {
   w2Income: W2Income[]
-  optionExercise: number
+  optionExercises: OptionExercise[]
   hsaContribution: number
   _401kContribution: number
   _403bContribution: number
@@ -31,7 +31,7 @@ export class UserInputStore implements UserInputData {
 
   // W2 income fields
   w2Income: W2Income[] = []
-  optionExercise: number = 0
+  optionExercises: OptionExercise[] = []
 
   // income deduction fields
   hsaContribution: number = 0
@@ -72,7 +72,7 @@ export class UserInputStore implements UserInputData {
   serialize(): UserInputData {
     return {
       w2Income: this.w2Income,
-      optionExercise: this.optionExercise,
+      optionExercises: this.optionExercises,
       hsaContribution: this.hsaContribution,
       _401kContribution: this._401kContribution,
       _403bContribution: this._403bContribution,
@@ -97,7 +97,7 @@ export class UserInputStore implements UserInputData {
   deserialize(data: UserInputData) {
     if (data) {
       this.w2Income = data.w2Income || []
-      this.optionExercise = data.optionExercise
+      this.optionExercises = data.optionExercises || []
       this.hsaContribution = data.hsaContribution
       this._401kContribution = data._401kContribution
       this._403bContribution = data._403bContribution
@@ -136,8 +136,20 @@ export class UserInputStore implements UserInputData {
     this.w2Income = this.w2Income.filter(w => w.id !== id)
   }
 
-  setOptionExercise(value: number) {
-    this.optionExercise = value
+  addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0) {
+    const id = uuidv4()
+    this.optionExercises.push({ id, date, amount })
+  }
+
+  updateOptionExercise(id: string, updates: Partial<Omit<OptionExercise, 'id'>>) {
+    const option = this.optionExercises.find(o => o.id === id)
+    if (option) {
+      Object.assign(option, updates)
+    }
+  }
+
+  removeOptionExercise(id: string) {
+    this.optionExercises = this.optionExercises.filter(o => o.id !== id)
   }
   setHsaContribution(value: number) {
     this.hsaContribution = value
@@ -195,7 +207,8 @@ export class UserInputStore implements UserInputData {
   // Computed properties for derived values
   get totalW2Income(): number {
     const w2Total = this.w2Income.reduce((sum, w2) => sum + w2.income, 0)
-    return w2Total + this.optionExercise
+    const optionTotal = this.optionExercises.reduce((sum, option) => sum + option.amount, 0)
+    return w2Total + optionTotal
   }
 
   get totalDeductions(): number {

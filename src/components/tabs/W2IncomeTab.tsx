@@ -51,12 +51,46 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
           </Segment>
 
           <Segment>
-            <FormGroup>
-              <Form.Field>
-                <label>Option Exercise</label>
-                <NumberInput value={store.optionExercise} changeFunction={store.setOptionExercise.bind(store)} />
-              </Form.Field>
-            </FormGroup>
+            <Header as='h3' content='Option Exercise Batches' />
+          </Segment>
+
+          {store.optionExercises.map((option) => (
+            <Segment key={option.id}>
+              <FormGroup>
+                <Form.Field width={5}>
+                  <label>Date</label>
+                  <Input 
+                    type='date'
+                    value={option.date} 
+                    onChange={(e) => store.updateOptionExercise(option.id, { date: e.target.value })}
+                  />
+                </Form.Field>
+                <Form.Field width={7}>
+                  <label>Amount</label>
+                  <NumberInput 
+                    value={option.amount} 
+                    changeFunction={(value) => store.updateOptionExercise(option.id, { amount: value })} 
+                  />
+                </Form.Field>
+                <Form.Field width={4}>
+                  <label>&nbsp;</label>
+                  <Button 
+                    color='red' 
+                    icon='trash' 
+                    onClick={() => store.removeOptionExercise(option.id)}
+                  />
+                </Form.Field>
+              </FormGroup>
+            </Segment>
+          ))}
+
+          <Segment>
+            <Button 
+              color='green' 
+              icon='plus' 
+              content='Add Option Exercise' 
+              onClick={() => store.addOptionExercise()}
+            />
           </Segment>
           
           <Segment inverted color={'grey'}>

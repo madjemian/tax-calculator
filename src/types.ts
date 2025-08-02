@@ -3,3 +3,9 @@ export type W2Income = {
   name: string
   income: number
 }
+
+export type OptionExercise = {
+  id: string
+  date: string
+  amount: number
+}
