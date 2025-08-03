@@ -1,4 +1,4 @@
-import { Form, FormGroup, Header, Segment, SegmentGroup, List } from 'semantic-ui-react'
+import { Card, H2, H3, FormGroup } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
@@ -9,74 +9,64 @@ const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
   
   return (
     <>
-      <Header as='h2' content='Taxes Paid' />
+      <H2>Taxes Paid</H2>
       
-      <Header as='h3' content='Withholding Summary' />
-      <Segment>
-        <List divided>
-          <List.Item>
-            <List.Content>
-              <List.Header>W2 Withholding</List.Header>
+      <H3>Withholding Summary</H3>
+      <Card style={{ marginBottom: '16px' }}>
+        <div>
+          <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+            <strong>W2 Withholding</strong>
+            <div>
               <NumericFormat value={Math.round(store.totalW2Withholding)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-            </List.Content>
-          </List.Item>
-          <List.Item>
-            <List.Content>
-              <List.Header>Option Exercise Withholding</List.Header>
+            </div>
+          </div>
+          <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+            <strong>Option Exercise Withholding</strong>
+            <div>
               <NumericFormat value={Math.round(store.totalOptionWithholding)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-            </List.Content>
-          </List.Item>
-        </List>
-      </Segment>
+            </div>
+          </div>
+        </div>
+      </Card>
 
-      <Form widths='equal'>
-        <SegmentGroup>
-          <Segment>
-            <FormGroup>
-              <Form.Field>
-                <label>Estimated Taxes Q1</label>
-                <NumberInput value={store.taxPaidQ1} changeFunction={store.setTaxPaidQ1.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Estimated Taxes Q2</label>
-                <NumberInput value={store.taxPaidQ2} changeFunction={store.setTaxPaidQ2.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Estimated Taxes Q3</label>
-                <NumberInput value={store.taxPaidQ3} changeFunction={store.setTaxPaidQ3.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Estimated Taxes Q4</label>
-                <NumberInput value={store.taxPaidQ4} changeFunction={store.setTaxPaidQ4.bind(store)} />
-              </Form.Field>
+      <div>
+        <Card style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <FormGroup label="Estimated Taxes Q1" style={{ minWidth: '200px' }}>
+              <NumberInput value={store.taxPaidQ1} changeFunction={store.setTaxPaidQ1.bind(store)} />
             </FormGroup>
-          </Segment>
-          <Segment>
-            <FormGroup>
-              <Form.Field>
-                <label>Foreign Tax Credit</label>
-                <NumberInput value={store.foreignTaxCredit} changeFunction={store.setForeignTaxCredit.bind(store)} />
-              </Form.Field>
+            <FormGroup label="Estimated Taxes Q2" style={{ minWidth: '200px' }}>
+              <NumberInput value={store.taxPaidQ2} changeFunction={store.setTaxPaidQ2.bind(store)} />
             </FormGroup>
-          </Segment>
-          <Segment inverted color={'grey'}>
-            <FormGroup>
-              <Form.Field>
-                <label>Total Withholding</label>
-                <NumberInput value={Math.round(store.totalWithholding)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Total Estimated Tax Paid</label>
-                <NumberInput value={Math.round(store.totalEstimatedTaxPaid)} />
-              </Form.Field>
-              <Form.Field>
-                <label>Total Tax Credit</label>
-                <NumberInput value={Math.round(store.totalTaxCredit)} />
-              </Form.Field>
+            <FormGroup label="Estimated Taxes Q3" style={{ minWidth: '200px' }}>
+              <NumberInput value={store.taxPaidQ3} changeFunction={store.setTaxPaidQ3.bind(store)} />
             </FormGroup>
-          </Segment>
-        </SegmentGroup>
-      </Form>
+            <FormGroup label="Estimated Taxes Q4" style={{ minWidth: '200px' }}>
+              <NumberInput value={store.taxPaidQ4} changeFunction={store.setTaxPaidQ4.bind(store)} />
+            </FormGroup>
+          </div>
+        </Card>
+        
+        <Card style={{ marginBottom: '16px' }}>
+          <FormGroup label="Foreign Tax Credit" style={{ minWidth: '200px' }}>
+            <NumberInput value={store.foreignTaxCredit} changeFunction={store.setForeignTaxCredit.bind(store)} />
+          </FormGroup>
+        </Card>
+        
+        <Card style={{ backgroundColor: '#f5f5f5' }}>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <FormGroup label="Total Withholding" style={{ minWidth: '200px' }}>
+              <NumberInput value={Math.round(store.totalWithholding)} />
+            </FormGroup>
+            <FormGroup label="Total Estimated Tax Paid" style={{ minWidth: '200px' }}>
+              <NumberInput value={Math.round(store.totalEstimatedTaxPaid)} />
+            </FormGroup>
+            <FormGroup label="Total Tax Credit" style={{ minWidth: '200px' }}>
+              <NumberInput value={Math.round(store.totalTaxCredit)} />
+            </FormGroup>
+          </div>
+        </Card>
+      </div>
     </>
   )
 })
