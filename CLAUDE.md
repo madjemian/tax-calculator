@@ -23,7 +23,7 @@ yarn test -- --testNamePattern="test name"  # Run specific test
 
 ## Architecture Overview
 
-This is a personal tax calculation application for tax year 2025, built with React + TypeScript + MobX.
+This is a personal tax calculation application for tax year 2025, built with React 18 + TypeScript + MobX + Blueprint UI.
 
 ### Data Flow Architecture
 
@@ -92,6 +92,7 @@ All calculated display values should use `Math.round()` to show clean dollar amo
 - Main tabs in `src/components/tabs/`
 - Each tab is self-contained with its own data management
 - Use `NumericFormat` for display-only values, `NumberInput` for editable values
+- UI components use Blueprint (@blueprintjs/core, @blueprintjs/icons) - import from Blueprint, not Semantic UI
 
 ### Refactoring Notes
 
