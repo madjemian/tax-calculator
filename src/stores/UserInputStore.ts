@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
 import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData } from '../types'
+import { BackupService } from '../utils/BackupService'
 
 export type UserInputData = {
   w2Income: W2Income[]
@@ -276,6 +277,41 @@ export class UserInputStore implements UserInputData {
       this.shortTermCapitalGains +
       this.taxFreeInterest
     )
+  }
+
+  exportBackup() {
+    const userData = this.serialize()
+    BackupService.exportToFile(userData)
+  }
+
+  async importBackup(): Promise<{ success: boolean; message: string }> {
+    try {
+      const result = await BackupService.importFromFile()
+      
+      if (!result.success) {
+        return { success: false, message: result.error || 'Failed to import backup' }
+      }
+
+      if (result.data) {
+        BackupService.exportToFile(this.serialize())
+        
+        this.deserialize(result.data)
+        
+        let message = 'Backup restored successfully!'
+        if (result.warnings && result.warnings.length > 0) {
+          message += `\n\nWarnings:\n${result.warnings.join('\n')}`
+        }
+        
+        return { success: true, message }
+      }
+      
+      return { success: false, message: 'No data found in backup file' }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Failed to restore backup: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      }
+    }
   }
 
 }
