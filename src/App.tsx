@@ -1,4 +1,4 @@
-import { Container, Grid, Header} from 'semantic-ui-react'
+import { H1 } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import TabbedUserInputs from './components/tabs/TabbedUserInputs'
 import InputSummary from './components/InputSummary'
@@ -6,22 +6,20 @@ import Calculated from './components/Calculated'
 
 const App = observer(() => {
   return (
-    <Container style={{ marginTop: '2em' }}>
-      <Header as='h1' content='Tax Calculator' textAlign='center' />
-      <Grid>
-        <Grid.Row>
-          <Grid.Column width={3}>
-            <InputSummary />
-          </Grid.Column>
-          <Grid.Column width={10}>
-            <TabbedUserInputs />
-          </Grid.Column>
-          <Grid.Column width={3}>
-            <Calculated />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
-    </Container>
+    <div style={{ padding: '2em', maxWidth: '1400px', margin: '0 auto' }}>
+      <H1 style={{ textAlign: 'center', marginBottom: '2em' }}>Tax Calculator</H1>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '20px', alignItems: 'start' }}>
+        <div>
+          <InputSummary />
+        </div>
+        <div>
+          <TabbedUserInputs />
+        </div>
+        <div>
+          <Calculated />
+        </div>
+      </div>
+    </div>
   )
 })
 
