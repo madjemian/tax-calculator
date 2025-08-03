@@ -1,4 +1,4 @@
-import { Form, FormGroup, Header, Segment, SegmentGroup } from 'semantic-ui-react'
+import { Card, H2, FormGroup } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import type { UserInputStore } from '../../stores/UserInputStore'
@@ -8,35 +8,28 @@ const DeductionsTab = observer((props: { store: UserInputStore }) => {
   
   return (
     <>
-      <Header as='h2' content='Income Deductions' />
-      <Form widths='equal'>
-        <SegmentGroup>
-          <Segment>
-            <FormGroup>
-              <Form.Field>
-                <label>HSA Contribution</label>
-                <NumberInput value={store.hsaContribution} changeFunction={store.setHsaContribution.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>401k Contribution</label>
-                <NumberInput value={store._401kContribution} changeFunction={store.set401kContribution.bind(store)} />
-              </Form.Field>
-              <Form.Field>
-                <label>403b Contribution</label>
-                <NumberInput value={store._403bContribution} changeFunction={store.set403bContribution.bind(store)} />
-              </Form.Field>
+      <H2>Income Deductions</H2>
+      <div>
+        <Card style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <FormGroup label="HSA Contribution" style={{ minWidth: '200px' }}>
+              <NumberInput value={store.hsaContribution} changeFunction={store.setHsaContribution.bind(store)} />
             </FormGroup>
-          </Segment>
-          <Segment inverted color={'grey'}>
-            <FormGroup>
-              <Form.Field>
-                <label>Total Deductions</label>
-                <NumberInput value={Math.round(store.totalDeductions)} />
-              </Form.Field>
+            <FormGroup label="401k Contribution" style={{ minWidth: '200px' }}>
+              <NumberInput value={store._401kContribution} changeFunction={store.set401kContribution.bind(store)} />
             </FormGroup>
-          </Segment>
-        </SegmentGroup>
-      </Form>
+            <FormGroup label="403b Contribution" style={{ minWidth: '200px' }}>
+              <NumberInput value={store._403bContribution} changeFunction={store.set403bContribution.bind(store)} />
+            </FormGroup>
+          </div>
+        </Card>
+        
+        <Card style={{ backgroundColor: '#f5f5f5' }}>
+          <FormGroup label="Total Deductions" style={{ minWidth: '200px' }}>
+            <NumberInput value={Math.round(store.totalDeductions)} />
+          </FormGroup>
+        </Card>
+      </div>
     </>
   )
 })
