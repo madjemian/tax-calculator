@@ -1,4 +1,4 @@
-import { Header, Table, Segment } from 'semantic-ui-react'
+import { H2, H3, Card, HTMLTable } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
@@ -37,24 +37,24 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
 
   return (
     <>
-      <Header as='h2' content='Investment Income (Quarterly)' />
-      <Segment>
-        <Table celled striped>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell width={4}>Category</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Q1</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Q2</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Q3</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Q4</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
+      <H2>Investment Income (Quarterly)</H2>
+      <Card style={{ marginBottom: '16px' }}>
+        <HTMLTable striped style={{ width: '100%' }}>
+          <thead>
+            <tr>
+              <th style={{ width: '25%' }}>Category</th>
+              <th style={{ width: '18.75%' }}>Q1</th>
+              <th style={{ width: '18.75%' }}>Q2</th>
+              <th style={{ width: '18.75%' }}>Q3</th>
+              <th style={{ width: '18.75%' }}>Q4</th>
+            </tr>
+          </thead>
           
-          <Table.Body>
+          <tbody>
             {incomeCategories.map((category) => (
-              <Table.Row key={category.key} style={category.isReadOnly ? { backgroundColor: '#f0f0f0' } : undefined}>
-                <Table.Cell><strong>{category.label}</strong></Table.Cell>
-                <Table.Cell>
+              <tr key={category.key} style={category.isReadOnly ? { backgroundColor: '#f0f0f0' } : undefined}>
+                <td><strong>{category.label}</strong></td>
+                <td>
                   {category.isReadOnly ? (
                     <NumericFormat value={Math.round(category.data.q1)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                   ) : (
@@ -63,8 +63,8 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
                       changeFunction={(value) => store.updateInvestmentIncome(category.key as keyof InvestmentIncome, 'q1', value)} 
                     />
                   )}
-                </Table.Cell>
-                <Table.Cell>
+                </td>
+                <td>
                   {category.isReadOnly ? (
                     <NumericFormat value={Math.round(category.data.q2)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                   ) : (
@@ -73,8 +73,8 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
                       changeFunction={(value) => store.updateInvestmentIncome(category.key as keyof InvestmentIncome, 'q2', value)} 
                     />
                   )}
-                </Table.Cell>
-                <Table.Cell>
+                </td>
+                <td>
                   {category.isReadOnly ? (
                     <NumericFormat value={Math.round(category.data.q3)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                   ) : (
@@ -83,8 +83,8 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
                       changeFunction={(value) => store.updateInvestmentIncome(category.key as keyof InvestmentIncome, 'q3', value)} 
                     />
                   )}
-                </Table.Cell>
-                <Table.Cell>
+                </td>
+                <td>
                   {category.isReadOnly ? (
                     <NumericFormat value={Math.round(category.data.q4)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
                   ) : (
@@ -93,21 +93,21 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
                       changeFunction={(value) => store.updateInvestmentIncome(category.key as keyof InvestmentIncome, 'q4', value)} 
                     />
                   )}
-                </Table.Cell>
-              </Table.Row>
+                </td>
+              </tr>
             ))}
-          </Table.Body>
-        </Table>
-      </Segment>
+          </tbody>
+        </HTMLTable>
+      </Card>
 
-      <Header as='h3' content='Investment Income Totals' />
-      <Segment>
-        <Table basic='very' celled>
-          <Table.Body>
+      <H3>Investment Income Totals</H3>
+      <Card>
+        <HTMLTable style={{ width: '100%' }}>
+          <tbody>
             {incomeCategories.map((category) => (
-              <Table.Row key={`total-${category.key}`}>
-                <Table.Cell width={8}><strong>{category.label}</strong></Table.Cell>
-                <Table.Cell width={8}>
+              <tr key={`total-${category.key}`}>
+                <td style={{ width: '50%' }}><strong>{category.label}</strong></td>
+                <td style={{ width: '50%' }}>
                   <NumericFormat 
                     value={Math.round(category.total)} 
                     displayType={'text'} 
@@ -115,12 +115,12 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
                     prefix={'$'} 
                     style={{ fontSize: '1.1em', fontWeight: 'bold' }}
                   />
-                </Table.Cell>
-              </Table.Row>
+                </td>
+              </tr>
             ))}
-          </Table.Body>
-        </Table>
-      </Segment>
+          </tbody>
+        </HTMLTable>
+      </Card>
     </>
   )
 })
