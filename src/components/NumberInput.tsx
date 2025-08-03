@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NumericFormat } from 'react-number-format'
-import { Input } from 'semantic-ui-react'
+import { InputGroup } from '@blueprintjs/core'
 
 const NumberInput = (props: {value: number, changeFunction?: (value: number) => void}) => {
   // keep a local state for the input value as a number
@@ -8,9 +8,8 @@ const NumberInput = (props: {value: number, changeFunction?: (value: number) => 
 
   return (
     <NumericFormat
-      fluid
       thousandSeparator
-      customInput={Input}
+      customInput={InputGroup}
       value={inputValue}
       onValueChange={(e) => setInputValue(parseFloat(e.value))}
       onBlur={() => {

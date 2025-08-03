@@ -1,4 +1,4 @@
-import { Container, Header, List } from 'semantic-ui-react'
+import { H2 } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import { useContext } from 'react'
 import { userInputStoreContext } from '../stores/stores'
@@ -8,19 +8,19 @@ const InputSummary = observer(() => {
   const userInputStore = useContext(userInputStoreContext)
 
   return (
-    <Container style={{ marginTop: '2em' }}>
-      <Header as='h2' content='Input Summary' />
-      <List divided>
-        <List.Item>
-          <List.Content>
-            <List.Header>W2 Income</List.Header>
+    <div style={{ marginTop: '2em', padding: '16px' }}>
+      <H2>Input Summary</H2>
+      <div style={{ marginTop: '16px' }}>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>W2 Income</strong>
+          <div>
             <NumericFormat value={Math.round(userInputStore.totalW2Income)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-          </List.Content>
-        </List.Item>
+          </div>
+        </div>
         
-        <List.Item>
-          <List.Content>
-            <List.Header>Investment Income</List.Header>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Investment Income</strong>
+          <div>
             <NumericFormat value={Math.round(
               userInputStore.taxFreeInterest + 
               userInputStore.taxableInterest + 
@@ -28,34 +28,34 @@ const InputSummary = observer(() => {
               userInputStore.longTermCapitalGains + 
               userInputStore.shortTermCapitalGains
             )} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-          </List.Content>
-        </List.Item>
+          </div>
+        </div>
         
-        <List.Item>
-          <List.Content>
-            <List.Header>Deductions</List.Header>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Deductions</strong>
+          <div>
             <NumericFormat value={Math.round(userInputStore.totalDeductions)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-          </List.Content>
-        </List.Item>
+          </div>
+        </div>
         
-        <List.Item>
-          <List.Content>
-            <List.Header>Taxes Paid</List.Header>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Taxes Paid</strong>
+          <div>
             <NumericFormat value={Math.round(
               userInputStore.totalWithholding + 
               userInputStore.totalEstimatedTaxPaid
             )} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-          </List.Content>
-        </List.Item>
+          </div>
+        </div>
         
-        <List.Item>
-          <List.Content>
-            <List.Header>Total Real Income</List.Header>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Total Real Income</strong>
+          <div>
             <NumericFormat value={Math.round(userInputStore.totalRealIncome)} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'green' }} />
-          </List.Content>
-        </List.Item>
-      </List>
-    </Container>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 })
 
