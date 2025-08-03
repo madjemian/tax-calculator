@@ -1,4 +1,4 @@
-import { Container, Header, List } from 'semantic-ui-react'
+import { H2 } from '@blueprintjs/core'
 import { appStoreContext } from '../stores/stores'
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
@@ -13,48 +13,54 @@ const CalculatedValues = observer(() => {
   console.log('Calculated refund:', appStore.refund)
   console.log('Calculated amount owed:', appStore.owed)
   return (
-    <Container style={{ marginTop: '2em' }}>
-    <Header as='h2' content='Calculated Taxes'/>
-    <List divided>
-      <List.Item>
-        <List.Content>
-          <List.Header>Total Income</List.Header>
-          <NumericFormat value={appStore.totalIncome} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-        </List.Content>
-      </List.Item>
-      <List.Item>
-        <List.Content>
-          <List.Header>Total Tax</List.Header>
-          <NumericFormat value={appStore.tax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-        </List.Content>
-      </List.Item>
-      <List.Item>
-        <List.Content>
-          <List.Header>Tax Payments</List.Header>
-          <NumericFormat value={appStore.payments} displayType={'text'} thousandSeparator={true} prefix={'$'} />
-        </List.Content>
-      </List.Item>
-      <List.Item>
-        <List.Content>
+    <div style={{ marginTop: '2em', padding: '16px' }}>
+      <H2>Calculated Taxes</H2>
+      <div style={{ marginTop: '16px' }}>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Total Income</strong>
+          <div>
+            <NumericFormat value={appStore.totalIncome} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Total Tax</strong>
+          <div>
+            <NumericFormat value={appStore.tax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Tax Payments</strong>
+          <div>
+            <NumericFormat value={appStore.payments} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           { appStore.refund > 0 ? (
             <>
-              <List.Header>Tax Refund</List.Header>
-              <NumericFormat value={appStore.refund} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'green' }}/>
+              <strong>Tax Refund</strong>
+              <div>
+                <NumericFormat value={appStore.refund} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'green' }}/>
+              </div>
             </>) : (
             <>
-              <List.Header>Amount Owed</List.Header>
-              <NumericFormat value={appStore.owed} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }}/>
+              <strong>Amount Owed</strong>
+              <div>
+                <NumericFormat value={appStore.owed} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }}/>
+              </div>
             </>) }
-        </List.Content>
-      </List.Item>
-      <List.Item>
-        <List.Content>
-          <List.Header>Effective Tax Rate</List.Header>
-          <NumericFormat value={Math.round(appStore.effectiveTaxRate * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
-        </List.Content>
-      </List.Item>
-    </List>
-    </Container>
+        </div>
+        
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Effective Tax Rate</strong>
+          <div>
+            <NumericFormat value={Math.round(appStore.effectiveTaxRate * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
+          </div>
+        </div>
+      </div>
+    </div>
   )
 })
 
