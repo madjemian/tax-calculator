@@ -12,10 +12,10 @@ const TabbedUserInputs = observer(() => {
 
   return (
     <Tabs id="user-input-tabs" defaultSelectedTabId="w2-income">
-      <Tab id="w2-income" title="W2 Income" panel={<W2IncomeTab store={userInputStore} />} />
-      <Tab id="investment-income" title="Investment Income" panel={<InvestmentIncomeTab store={userInputStore} />} />
-      <Tab id="deductions" title="Income Deductions" panel={<DeductionsTab store={userInputStore} />} />
-      <Tab id="taxes-paid" title="Taxes Paid" panel={<TaxesPaidTab store={userInputStore} />} />
+      <Tab id="w2-income" title={<strong>W2 Income</strong>} panel={<W2IncomeTab store={userInputStore} />} />
+      <Tab id="investment-income" title={<strong>Investment Income</strong>} panel={<InvestmentIncomeTab store={userInputStore} />} />
+      <Tab id="deductions" title={<strong>Income Deductions</strong>} panel={<DeductionsTab store={userInputStore} />} />
+      <Tab id="taxes-paid" title={<strong>Taxes Paid</strong>} panel={<TaxesPaidTab store={userInputStore} />} />
     </Tabs>
   )
 })

@@ -1,4 +1,4 @@
-import { H2 } from '@blueprintjs/core'
+import { H3 } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import { useContext } from 'react'
 import { userInputStoreContext } from '../stores/stores'
@@ -9,7 +9,7 @@ const InputSummary = observer(() => {
 
   return (
     <div style={{ marginTop: '2em', padding: '16px' }}>
-      <H2>Input Summary</H2>
+      <H3>Input Summary</H3>
       <div style={{ marginTop: '16px' }}>
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>W2 Income</strong>

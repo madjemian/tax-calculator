@@ -1,4 +1,4 @@
-import { H2 } from '@blueprintjs/core'
+import { H3 } from '@blueprintjs/core'
 import { appStoreContext } from '../stores/stores'
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
@@ -14,12 +14,12 @@ const CalculatedValues = observer(() => {
   console.log('Calculated amount owed:', appStore.owed)
   return (
     <div style={{ marginTop: '2em', padding: '16px' }}>
-      <H2>Calculated Taxes</H2>
+      <H3>Calculated Taxes</H3>
       <div style={{ marginTop: '16px' }}>
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Total Income</strong>
           <div>
-            <NumericFormat value={appStore.totalIncome} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+            <NumericFormat value={Math.round(appStore.totalIncome)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
           </div>
         </div>
         

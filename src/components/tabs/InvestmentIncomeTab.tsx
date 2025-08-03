@@ -1,4 +1,4 @@
-import { H2, H3, Card, HTMLTable } from '@blueprintjs/core'
+import { H3, Card, HTMLTable } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
@@ -37,9 +37,9 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
 
   return (
     <>
-      <H2>Investment Income (Quarterly)</H2>
+      <H3>Investment Income (Quarterly)</H3>
       <Card style={{ marginBottom: '16px' }}>
-        <HTMLTable striped style={{ width: '100%' }}>
+        <HTMLTable style={{ width: '100%' }}>
           <thead>
             <tr>
               <th style={{ width: '25%' }}>Category</th>
@@ -102,7 +102,7 @@ const InvestmentIncomeTab = observer((props: { store: UserInputStore }) => {
 
       <H3>Investment Income Totals</H3>
       <Card>
-        <HTMLTable style={{ width: '100%' }}>
+        <HTMLTable compact style={{ width: '100%' }}>
           <tbody>
             {incomeCategories.map((category) => (
               <tr key={`total-${category.key}`}>
