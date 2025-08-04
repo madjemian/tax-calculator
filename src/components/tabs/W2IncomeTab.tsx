@@ -67,7 +67,7 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
           <Card key={option.id} style={{ marginBottom: '16px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'end', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
-                <FormGroup label={<strong>Date</strong>} style={{ flex: '1', maxWidth: '110px' }}>
+                <FormGroup label={<strong>Date</strong>} style={{ flex: '1', maxWidth: '140px' }}>
                   <InputGroup 
                     type='date'
                     value={option.date} 
