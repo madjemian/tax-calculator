@@ -14,7 +14,7 @@ const CalculatedValues = observer(() => {
   console.log('Calculated amount owed:', appStore.owed)
   return (
     <div style={{ marginTop: '2em', padding: '16px' }}>
-      <H3>Calculated Taxes</H3>
+      <H3>Federal Tax</H3>
       <div style={{ marginTop: '16px' }}>
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Total Income</strong>
@@ -61,7 +61,7 @@ const CalculatedValues = observer(() => {
         </div>
 
         <div style={{ marginTop: '20px', marginBottom: '12px' }}>
-          <H3>California Tax Calculation</H3>
+          <H3>California Tax</H3>
         </div>
 
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
@@ -92,10 +92,17 @@ const CalculatedValues = observer(() => {
           </div>
         </div>
 
-        <div style={{ marginBottom: '12px', paddingBottom: '8px' }}>
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>CA Tax Owed</strong>
           <div>
             <NumericFormat value={appStore.caActualTax} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px' }}>
+          <strong>CA Effective Tax Rate</strong>
+          <div>
+            <NumericFormat value={Math.round((appStore.caActualTax / appStore.totalIncome) * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
           </div>
         </div>
       </div>
