@@ -13,32 +13,40 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
       <div>
         {store.w2Income.map((w2) => (
           <Card key={w2.id} style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'end' }}>
-              <FormGroup label={<strong>Name</strong>} style={{ minWidth: '200px' }}>
-                <InputGroup 
-                  value={w2.name} 
-                  onChange={(e) => store.updateW2Income(w2.id, { name: e.target.value })}
-                />
-              </FormGroup>
-              <FormGroup label={<strong>Income</strong>} style={{ minWidth: '200px' }}>
-                <NumberInput 
-                  value={w2.income} 
-                  changeFunction={(value) => store.updateW2Income(w2.id, { income: value })} 
-                />
-              </FormGroup>
-              <FormGroup label={<strong>Withholding</strong>} style={{ minWidth: '250px' }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'end', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
+                <FormGroup label={<strong>Name</strong>} style={{ flex: '1', maxWidth: '120px' }}>
+                  <InputGroup 
+                    value={w2.name} 
+                    onChange={(e) => store.updateW2Income(w2.id, { name: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Income</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={w2.income} 
+                    changeFunction={(value) => store.updateW2Income(w2.id, { income: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Withholding</strong>} style={{ flex: '1', maxWidth: '100px' }}>
                   <NumberInput 
                     value={w2.withholding} 
                     changeFunction={(value) => store.updateW2Income(w2.id, { withholding: value })} 
                   />
-                  <Button 
-                    intent="danger"
-                    icon={<Trash />}
-                    onClick={() => store.removeW2Income(w2.id)}
-                    disabled={store.w2Income.length <= 1}
+                </FormGroup>
+                <FormGroup label={<strong>Days in CA</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={w2.daysInCA ?? 0} 
+                    changeFunction={(value) => store.updateW2Income(w2.id, { daysInCA: value })} 
                   />
-                </div>
+                </FormGroup>
+              </div>
+              <FormGroup label={<span style={{ visibility: 'hidden' }}>.</span>}>
+                <Button 
+                  intent="danger"
+                  icon={<Trash />}
+                  onClick={() => store.removeW2Income(w2.id)}
+                  disabled={store.w2Income.length <= 1}
+                />
               </FormGroup>
             </div>
           </Card>
@@ -57,32 +65,40 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
 
         {store.optionExercises.map((option) => (
           <Card key={option.id} style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'end' }}>
-              <FormGroup label={<strong>Date</strong>} style={{ minWidth: '200px' }}>
-                <InputGroup 
-                  type='date'
-                  value={option.date} 
-                  onChange={(e) => store.updateOptionExercise(option.id, { date: e.target.value })}
-                />
-              </FormGroup>
-              <FormGroup label={<strong>Amount</strong>} style={{ minWidth: '200px' }}>
-                <NumberInput 
-                  value={option.amount} 
-                  changeFunction={(value) => store.updateOptionExercise(option.id, { amount: value })} 
-                />
-              </FormGroup>
-              <FormGroup label={<strong>Withholding</strong>} style={{ minWidth: '250px' }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'end', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
+                <FormGroup label={<strong>Date</strong>} style={{ flex: '1', maxWidth: '110px' }}>
+                  <InputGroup 
+                    type='date'
+                    value={option.date} 
+                    onChange={(e) => store.updateOptionExercise(option.id, { date: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Amount</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={option.amount} 
+                    changeFunction={(value) => store.updateOptionExercise(option.id, { amount: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Withholding</strong>} style={{ flex: '1', maxWidth: '100px' }}>
                   <NumberInput 
                     value={option.withholding} 
                     changeFunction={(value) => store.updateOptionExercise(option.id, { withholding: value })} 
                   />
-                  <Button 
-                    intent="danger"
-                    icon={<Trash />}
-                    onClick={() => store.removeOptionExercise(option.id)}
+                </FormGroup>
+                <FormGroup label={<strong>CA Taxable %</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={option.caTaxablePercent ?? 0} 
+                    changeFunction={(value) => store.updateOptionExercise(option.id, { caTaxablePercent: value })} 
                   />
-                </div>
+                </FormGroup>
+              </div>
+              <FormGroup label={<span style={{ visibility: 'hidden' }}>.</span>}>
+                <Button 
+                  intent="danger"
+                  icon={<Trash />}
+                  onClick={() => store.removeOptionExercise(option.id)}
+                />
               </FormGroup>
             </div>
           </Card>

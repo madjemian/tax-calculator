@@ -59,6 +59,45 @@ const CalculatedValues = observer(() => {
             <NumericFormat value={Math.round(appStore.effectiveTaxRate * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
           </div>
         </div>
+
+        <div style={{ marginTop: '20px', marginBottom: '12px' }}>
+          <H3>California Tax Calculation</H3>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>CA Taxable Income (Full)</strong>
+          <div>
+            <NumericFormat value={appStore.caTaxableIncome} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>CA Tax (on Full Income)</strong>
+          <div>
+            <NumericFormat value={appStore.caFullTax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>CA Taxable Amount</strong>
+          <div>
+            <NumericFormat value={appStore.caTaxableAmount} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>CA Tax Ratio</strong>
+          <div>
+            <NumericFormat value={Math.round(appStore.caRatio * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px' }}>
+          <strong>CA Tax Owed</strong>
+          <div>
+            <NumericFormat value={appStore.caActualTax} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }} />
+          </div>
+        </div>
       </div>
     </div>
   )

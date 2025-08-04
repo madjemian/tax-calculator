@@ -3,6 +3,7 @@ export type W2Income = {
   name: string
   income: number
   withholding: number
+  daysInCA?: number // Days worked in California (out of 365)
 }
 
 export type OptionExercise = {
@@ -10,6 +11,7 @@ export type OptionExercise = {
   date: string
   amount: number
   withholding: number
+  caTaxablePercent?: number // Percentage of option exercise that is CA taxable (0-100)
 }
 
 export type QuarterlyData = {

@@ -115,9 +115,9 @@ export class UserInputStore implements UserInputData {
   }
 
   // Methods to update the state
-  addW2Income(name: string = 'New W2', income: number = 0, withholding: number = 0) {
+  addW2Income(name: string = 'New W2', income: number = 0, withholding: number = 0, daysInCA?: number) {
     const id = uuidv4()
-    this.w2Income.push({ id, name, income, withholding })
+    this.w2Income.push({ id, name, income, withholding, daysInCA })
   }
 
   updateW2Income(id: string, updates: Partial<Omit<W2Income, 'id'>>) {
@@ -131,9 +131,9 @@ export class UserInputStore implements UserInputData {
     this.w2Income = this.w2Income.filter(w => w.id !== id)
   }
 
-  addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0, withholding: number = 0) {
+  addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0, withholding: number = 0, caTaxablePercent?: number) {
     const id = uuidv4()
-    this.optionExercises.push({ id, date, amount, withholding })
+    this.optionExercises.push({ id, date, amount, withholding, caTaxablePercent })
   }
 
   updateOptionExercise(id: string, updates: Partial<Omit<OptionExercise, 'id'>>) {
@@ -277,6 +277,37 @@ export class UserInputStore implements UserInputData {
       this.shortTermCapitalGains +
       this.taxFreeInterest
     )
+  }
+
+  // California tax calculations
+  get totalCATaxableW2Income(): number {
+    return this.w2Income.reduce((sum, w2) => {
+      const daysInCA = w2.daysInCA ?? 0
+      const caPercentage = daysInCA / 365
+      return sum + (w2.income * caPercentage)
+    }, 0)
+  }
+
+  get totalCATaxableOptionIncome(): number {
+    return this.optionExercises.reduce((sum, option) => {
+      const caPercent = (option.caTaxablePercent ?? 0) / 100
+      return sum + (option.amount * caPercent)
+    }, 0)
+  }
+
+  get totalCATaxableIncome(): number {
+    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome
+  }
+
+  // Total income subject to CA tax calculation (W2 + options - deductions)
+  get totalCACalculationBase(): number {
+    return this.totalW2Income - this.totalDeductions
+  }
+
+  // Weighted ratio of CA taxable portion
+  get caTaxableRatio(): number {
+    if (this.totalW2Income === 0) return 0
+    return this.totalCATaxableIncome / this.totalW2Income
   }
 
   exportBackup() {
