@@ -22,41 +22,59 @@ const CalculatedValues = observer(() => {
             <NumericFormat value={Math.round(appStore.totalIncome)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
           </div>
         </div>
-        
+
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Total Tax</strong>
           <div>
             <NumericFormat value={appStore.tax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
           </div>
         </div>
-        
+
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Tax Payments</strong>
           <div>
             <NumericFormat value={appStore.payments} displayType={'text'} thousandSeparator={true} prefix={'$'} />
           </div>
         </div>
-        
+
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-          { appStore.refund > 0 ? (
+          {appStore.refund > 0 ? (
             <>
               <strong>Tax Refund</strong>
               <div>
-                <NumericFormat value={appStore.refund} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'green' }}/>
+                <NumericFormat value={appStore.refund} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'green' }} />
               </div>
             </>) : (
             <>
               <strong>Amount Owed</strong>
               <div>
-                <NumericFormat value={appStore.owed} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }}/>
+                <NumericFormat value={appStore.owed} displayType={'text'} thousandSeparator={true} prefix={'$'} style={{ color: 'red' }} />
               </div>
-            </>) }
+            </>)}
         </div>
-        
+
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Effective Tax Rate</strong>
           <div>
             <NumericFormat value={Math.round(appStore.effectiveTaxRate * 1000) / 10} displayType={'text'} thousandSeparator={true} suffix={'%'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Marginal Tax Bracket</strong>
+          <div>
+            <NumericFormat value={Math.round(appStore.marginalTaxBracket.rate * 100)} displayType={'text'} suffix={'%'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Income Room Remaining</strong>
+          <div>
+            {appStore.marginalTaxBracket.remaining === Infinity ? (
+              'Unlimited'
+            ) : (
+              <NumericFormat value={Math.round(appStore.marginalTaxBracket.remaining)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+            )}
           </div>
         </div>
 

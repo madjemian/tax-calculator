@@ -159,24 +159,7 @@ export class UserInputStore implements UserInputData {
   set403bContribution(value: number) {
     this._403bContribution = value
   }
-  setTaxFreeInterest(value: number) {
-    this.taxFreeInterest = value
-  }
-  setTaxableInterest(value: number) {
-    this.taxableInterest = value
-  }
-  setTotalDividends(value: number) {
-    this.totalDividends = value
-  }
-  setQualifiedDividends(value: number) {
-    this.qualifiedDividends = value
-  }
-  setLongTermCapitalGains(value: number) {
-    this.longTermCapitalGains = value
-  }
-  setShortTermCapitalGains(value: number) {
-    this.shortTermCapitalGains = value
-  }
+
 
   setWithholding1(value: number) {
     this.withholding1 = value
@@ -318,29 +301,29 @@ export class UserInputStore implements UserInputData {
   async importBackup(): Promise<{ success: boolean; message: string }> {
     try {
       const result = await BackupService.importFromFile()
-      
+
       if (!result.success) {
         return { success: false, message: result.error || 'Failed to import backup' }
       }
 
       if (result.data) {
         BackupService.exportToFile(this.serialize())
-        
+
         this.deserialize(result.data)
-        
+
         let message = 'Backup restored successfully!'
         if (result.warnings && result.warnings.length > 0) {
           message += `\n\nWarnings:\n${result.warnings.join('\n')}`
         }
-        
+
         return { success: true, message }
       }
-      
+
       return { success: false, message: 'No data found in backup file' }
     } catch (error) {
-      return { 
-        success: false, 
-        message: `Failed to restore backup: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      return {
+        success: false,
+        message: `Failed to restore backup: ${error instanceof Error ? error.message : 'Unknown error'}`
       }
     }
   }

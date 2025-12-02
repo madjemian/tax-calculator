@@ -21,7 +21,7 @@ export interface BackupValidationResult {
 export class BackupService {
   private static readonly BACKUP_VERSION = '1.0'
   private static readonly APP_VERSION = '1.0.0'
-  private static readonly TAX_YEAR = '2025'
+  private static readonly TAX_YEAR = '2026'
 
   static generateBackupFilename(): string {
     const now = new Date()
@@ -48,7 +48,7 @@ export class BackupService {
     const jsonString = JSON.stringify(backup, null, 2)
     const blob = new Blob([jsonString], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    
+
     const link = document.createElement('a')
     link.href = url
     link.download = this.generateBackupFilename()
@@ -116,7 +116,7 @@ export class BackupService {
 
     // Copy over existing data, using defaults for missing fields
     if (Array.isArray(backupData.data.w2Income)) {
-      normalizedData.w2Income = backupData.data.w2Income.filter((w2: any) => 
+      normalizedData.w2Income = backupData.data.w2Income.filter((w2: any) =>
         w2.id && typeof w2.name === 'string' && typeof w2.income === 'number'
       )
       if (normalizedData.w2Income.length !== backupData.data.w2Income.length) {
@@ -127,7 +127,7 @@ export class BackupService {
     }
 
     if (Array.isArray(backupData.data.optionExercises)) {
-      normalizedData.optionExercises = backupData.data.optionExercises.filter((option: any) => 
+      normalizedData.optionExercises = backupData.data.optionExercises.filter((option: any) =>
         option.id && typeof option.date === 'string' && typeof option.amount === 'number'
       )
       if (normalizedData.optionExercises.length !== backupData.data.optionExercises.length) {
@@ -141,13 +141,13 @@ export class BackupService {
     if (backupData.data.investmentIncome && typeof backupData.data.investmentIncome === 'object') {
       const investmentFields = [
         'taxFreeInterest',
-        'taxableInterest', 
+        'taxableInterest',
         'qualifiedDividends',
         'nonQualifiedDividends',
         'longTermCapitalGains',
         'shortTermCapitalGains',
       ]
-      
+
       for (const field of investmentFields) {
         if (backupData.data.investmentIncome[field] && typeof backupData.data.investmentIncome[field] === 'object') {
           normalizedData.investmentIncome[field as keyof typeof normalizedData.investmentIncome] = {
@@ -171,7 +171,7 @@ export class BackupService {
 
     for (const field of numericFields) {
       if (typeof backupData.data[field] === 'number') {
-        normalizedData[field as keyof UserInputData] = backupData.data[field]
+        (normalizedData as any)[field] = backupData.data[field]
       } else if (backupData.data[field] !== undefined) {
         warnings.push(`Invalid value for ${field}, using default (0)`)
       } else {
@@ -201,7 +201,7 @@ export class BackupService {
       const input = document.createElement('input')
       input.type = 'file'
       input.accept = '.json'
-      
+
       input.onchange = async (event) => {
         const file = (event.target as HTMLInputElement).files?.[0]
         if (!file) {
@@ -213,11 +213,11 @@ export class BackupService {
           const text = await file.text()
           const backupData = JSON.parse(text)
           const validation = this.validateAndNormalizeBackupFile(backupData)
-          
+
           if (!validation.isValid) {
-            resolve({ 
-              success: false, 
-              error: `Invalid backup file: ${validation.errors.join(', ')}` 
+            resolve({
+              success: false,
+              error: `Invalid backup file: ${validation.errors.join(', ')}`
             })
             return
           }
@@ -228,9 +228,9 @@ export class BackupService {
             warnings: validation.warnings,
           })
         } catch (error) {
-          resolve({ 
-            success: false, 
-            error: `Failed to parse backup file: ${error instanceof Error ? error.message : 'Unknown error'}` 
+          resolve({
+            success: false,
+            error: `Failed to parse backup file: ${error instanceof Error ? error.message : 'Unknown error'}`
           })
         }
       }

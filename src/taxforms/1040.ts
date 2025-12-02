@@ -173,4 +173,19 @@ export class Form1040 extends TaxForm
   getQualifiedDividends(): number {
     return this.calculations.line3a()
   }
+
+  get marginalTaxBracket(): { rate: number, remaining: number } {
+    const taxableIncome = this.calculations.line15()
+    const bracket = TAX_BRACKETS.find((b) => taxableIncome >= b.min && taxableIncome <= b.max)
+
+    if (!bracket) {
+      // Should not happen given the catch-all last bracket, but safe fallback
+      return { rate: 0, remaining: 0 }
+    }
+
+    return {
+      rate: bracket.rate,
+      remaining: bracket.max === Infinity ? Infinity : bracket.max - taxableIncome
+    }
+  }
 }

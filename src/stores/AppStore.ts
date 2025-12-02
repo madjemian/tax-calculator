@@ -63,4 +63,8 @@ export class AppStore {
   get caActualTax(): number {
     return Math.round(this.californiaTax.calculateActualCATax())
   }
+
+  get marginalTaxBracket(): { rate: number, remaining: number } {
+    return this.form1040.marginalTaxBracket
+  }
 }
