@@ -3,7 +3,7 @@ import { UserInputStore, type UserInputData } from './UserInputStore'
 import { autorun } from 'mobx'
 import { AppStore } from './AppStore'
 
-const TAX_YEAR = '2025'
+const TAX_YEAR = '2026'
 const LOCAL_STORAGE_KEY = `taxCalculatorData-${TAX_YEAR}`
 
 const initialDataString = localStorage.getItem(LOCAL_STORAGE_KEY)

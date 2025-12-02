@@ -23,7 +23,7 @@ yarn test -- --testNamePattern="test name"  # Run specific test
 
 ## Architecture Overview
 
-This is a personal tax calculation application for tax year 2025, built with React 18 + TypeScript + MobX + Blueprint UI.
+This is a personal tax calculation application for tax year 2026, built with React 18 + TypeScript + MobX + Blueprint UI.
 
 ### Data Flow Architecture
 
@@ -68,7 +68,7 @@ this.calculations = {
 
 ### Important Constants
 
-Tax year 2025 constants are defined in `1040.ts`:
+Tax year 2026 constants are defined in `1040.ts`:
 - `STANDARD_DEDUCTION = 30000`
 - `ADDITIONAL_MEDICARE_TAX_THRESHOLD = 250000`
 - `ZERO_PERCENT_CAP_GAINS_LIMIT = 96700`

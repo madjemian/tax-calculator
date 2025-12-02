@@ -66,10 +66,10 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
       const result = worksheet.calculateTax();
 
       // Regular income: 50000 - 8000 = 42000
-      // Tax on 42000: 42000 * 0.12 - 477 = 4563
+      // Tax on 42000: (42000 - 24800) * 0.12 + 2480 = 4544
       // Qualified dividends and cap gains (8000) taxed at 0%
-      // Total: 4563
-      expect(result).toBe(4563);
+      // Total: 4544
+      expect(result).toBe(4544);
     });
 
     it('should calculate tax for income in 15% capital gains bracket', () => {
@@ -144,14 +144,14 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
 
       // Test the tax lookup directly
       expect(worksheet.taxLookup(23850)).toBe(2385); // 23850 * 0.1
-      expect(worksheet.taxLookup(50000)).toBe(5523); // 50000 * 0.12 - 477
-      expect(worksheet.taxLookup(100000)).toBe(11828); // 100000 * 0.22 - 10172
+      expect(worksheet.taxLookup(50000)).toBe(5504); // (50000 - 24800) * 0.12 + 2480
+      expect(worksheet.taxLookup(100000)).toBe(11504); // (100000 - 24800) * 0.12 + 2480
     });
 
     it('should respect capital gains limits constants', () => {
       // Test that our constants are being used correctly
-      expect(ZERO_PERCENT_CAP_GAINS_LIMIT).toBe(96700);
-      expect(FIFTEEN_PERCENT_CAP_GAINS_LIMIT).toBe(600050);
+      expect(ZERO_PERCENT_CAP_GAINS_LIMIT).toBe(98900);
+      expect(FIFTEEN_PERCENT_CAP_GAINS_LIMIT).toBe(613700);
 
       const provider = new MockQualifiedDividendsAndCapitalGainsProvider(
         ZERO_PERCENT_CAP_GAINS_LIMIT - 1000, // Just below 0% limit
@@ -226,26 +226,26 @@ describe('QualifiedDividendsAndCapitalGainsWorksheet', () => {
     });
 
     it('should calculate 12% bracket correctly', () => {
-      expect(worksheet.taxLookup(50000)).toBe(5523); // 50000 * 0.12 - 477
-      expect(worksheet.taxLookup(96950)).toBe(11157); // 96950 * 0.12 - 477
+      expect(worksheet.taxLookup(50000)).toBe(5504); // (50000 - 24800) * 0.12 + 2480
+      expect(worksheet.taxLookup(96950)).toBe(11138); // (96950 - 24800) * 0.12 + 2480
     });
 
     it('should calculate 22% bracket correctly', () => {
-      expect(worksheet.taxLookup(150000)).toBe(22828); // 150000 * 0.22 - 10172
-      expect(worksheet.taxLookup(206700)).toBe(35302); // 206700 * 0.22 - 10172
+      expect(worksheet.taxLookup(150000)).toBe(22544); // (150000 - 100800) * 0.22 + 11720
+      expect(worksheet.taxLookup(206700)).toBe(35018); // (206700 - 100800) * 0.22 + 11720
     });
 
     it('should calculate higher brackets correctly', () => {
-      expect(worksheet.taxLookup(300000)).toBe(57694); // 300000 * 0.24 - 14306
-      expect(worksheet.taxLookup(500000)).toBe(114126); // 500000 * 0.32 - 45874
-      expect(worksheet.taxLookup(700000)).toBeCloseTo(184094.5, 2); // 700000 * 0.35 - 60905.5
-      expect(worksheet.taxLookup(1000000)).toBe(294062.5); // 1000000 * 0.37 - 75937.5
+      expect(worksheet.taxLookup(300000)).toBe(57456); // (300000 - 211400) * 0.24 + 36192
+      expect(worksheet.taxLookup(500000)).toBe(113208); // (500000 - 403550) * 0.32 + 82344
+      expect(worksheet.taxLookup(700000)).toBeCloseTo(182786.5, 1); // (700000 - 512450) * 0.35 + 117144
+      expect(worksheet.taxLookup(1000000)).toBe(294187.5); // (1000000 - 768700) * 0.37 + 208606.5
     });
 
     it('should handle boundary values', () => {
       expect(worksheet.taxLookup(0)).toBe(0);
       expect(worksheet.taxLookup(23850)).toBe(2385);
-      expect(worksheet.taxLookup(23851)).toBe(2385.12); // 23851 * 0.12 - 477
+      expect(worksheet.taxLookup(24801)).toBe(2480.12); // (24801 - 24800) * 0.12 + 2480
     });
   });
 });

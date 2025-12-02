@@ -7,32 +7,32 @@ import { Schedule3, type CreditProvider } from './Schedule3'
 import { TaxForm } from './TaxForm'
 import { QualifiedDividendsAndCapitalGainsWorksheet, type QualifiedDividendsAndCapitalGainsProvider } from './QualifiedDividendsAndCapitalGainsWorksheet'
 
-// magic numbers for tax year 2025
-export const STANDARD_DEDUCTION = 30000
-export const ZERO_PERCENT_CAP_GAINS_LIMIT = 96700
-export const FIFTEEN_PERCENT_CAP_GAINS_LIMIT = 600050
+// magic numbers for tax year 2026
+export const STANDARD_DEDUCTION = 32200
+export const ZERO_PERCENT_CAP_GAINS_LIMIT = 98900
+export const FIFTEEN_PERCENT_CAP_GAINS_LIMIT = 613700
 export const ADDITIONAL_MEDICARE_TAX_THRESHOLD = 250000
 export const NIIT_THRESHOLD = 250000
 export const MAX_CAPITAL_LOSS_DEDUCTION = -3000
 
-// Tax brackets for tax year 2025
+// Tax brackets for tax year 2026
 export const TAX_BRACKETS = [
-  { min: 0, max: 23850, rate: 0.10, offset: 0 },
-  { min: 23850, max: 96950, rate: 0.12, offset: 477 },
-  { min: 96950, max: 206700, rate: 0.22, offset: 10172 },
-  { min: 206700, max: 394600, rate: 0.24, offset: 14306 },
-  { min: 394600, max: 501050, rate: 0.32, offset: 45874 },
-  { min: 501050, max: 751600, rate: 0.35, offset: 60905.5 },
-  { min: 751600, max: Infinity, rate: 0.37, offset: 75937.5 }
+  { min: 0, max: 24800, rate: 0.10, offset: 0 },
+  { min: 24800, max: 100800, rate: 0.12, offset: 2480 },
+  { min: 100800, max: 211400, rate: 0.22, offset: 11720 },
+  { min: 211400, max: 403550, rate: 0.24, offset: 36192 },
+  { min: 403550, max: 512450, rate: 0.32, offset: 82344 },
+  { min: 512450, max: 768700, rate: 0.35, offset: 117144 },
+  { min: 768700, max: Infinity, rate: 0.37, offset: 208606.5 }
 ]
 
 // https://www.irs.gov/pub/irs-pdf/f1040.pdf
 export class Form1040 extends TaxForm
-        implements CalculationProvider,
-                   CapitalGainsProvider,
-                   DeductionProvider,
-                   CreditProvider,
-                   QualifiedDividendsAndCapitalGainsProvider {
+  implements CalculationProvider,
+  CapitalGainsProvider,
+  DeductionProvider,
+  CreditProvider,
+  QualifiedDividendsAndCapitalGainsProvider {
   // This class will represent the 1040 tax form
 
   private store: UserInputStore

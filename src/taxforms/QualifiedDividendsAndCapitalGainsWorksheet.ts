@@ -55,7 +55,7 @@ export class QualifiedDividendsAndCapitalGainsWorksheet extends TaxForm {
   taxLookup(amount: number): number {
     for (const bracket of TAX_BRACKETS) {
       if (amount <= bracket.max) {
-        return (amount * bracket.rate) - bracket.offset
+        return ((amount - bracket.min) * bracket.rate) + bracket.offset
       }
     }
     throw new Error(`Unable to find tax bracket for amount: ${amount}`)
