@@ -1,8 +1,6 @@
-> **Note:** This file is now secondary. Please see `GEMINI.md` for the most up-to-date guidance.
+# GEMINI.md
 
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file was originally generated from `CLAUDE.md` and provides guidance to Gemini when working with code in this repository.
 
 ## Development Commands
 
@@ -25,7 +23,7 @@ yarn test -- --testNamePattern="test name"  # Run specific test
 
 ## Architecture Overview
 
-This is a personal tax calculation application for tax year 2026, built with React 18 + TypeScript + MobX + Blueprint UI.
+This is a personal tax calculation application for tax year 2025, built with React 18 + TypeScript + MobX + Blueprint UI.
 
 ### Data Flow Architecture
 
@@ -70,7 +68,7 @@ this.calculations = {
 
 ### Important Constants
 
-Tax year 2026 constants are defined in `1040.ts`:
+Tax year 2025 constants are defined in `1040.ts`:
 - `STANDARD_DEDUCTION = 30000`
 - `ADDITIONAL_MEDICARE_TAX_THRESHOLD = 250000`
 - `ZERO_PERCENT_CAP_GAINS_LIMIT = 96700`
@@ -85,7 +83,7 @@ The `UserInputStore` uses computed properties (e.g., `totalW2Income`, `taxableIn
 Use `uuid` package for generating IDs for dynamic entries (W2s, option exercises). Each entry should have add/update/remove methods in the store with proper MobX reactivity.
 
 **Quarterly Data Pattern:**
-Investment income uses `QuarterlyData` type with q1-q4 fields. Use `sumQuarterly()` helper method with null coalescing for safe aggregation.
+Investment income uses `QuartereplacementyData` type with q1-q4 fields. Use `sumQuarterly()` helper method with null coalescing for safe aggregation.
 
 **Rounding for Display:**
 All calculated display values should use `Math.round()` to show clean dollar amounts. User input values remain unrounded for calculation precision.
