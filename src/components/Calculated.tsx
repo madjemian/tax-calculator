@@ -24,6 +24,20 @@ const CalculatedValues = observer(() => {
         </div>
 
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>AGI (Adjusted Gross Income)</strong>
+          <div>
+            <NumericFormat value={appStore.agi} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>MAGI (Modified AGI)</strong>
+          <div>
+            <NumericFormat value={appStore.magi} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Total Tax</strong>
           <div>
             <NumericFormat value={appStore.tax} displayType={'text'} thousandSeparator={true} prefix={'$'} />

@@ -37,6 +37,14 @@ export class AppStore {
     return this.userInputStore.totalRealIncome
   }
 
+  get agi(): number {
+    return Math.round(this.form1040.getAgi())
+  }
+
+  get magi(): number {
+    return Math.round(this.form1040.getModifiedAGI())
+  }
+
   get effectiveTaxRate(): number {
     // Effective tax rate = total tax / total income
     const rate = this.tax / this.totalIncome
