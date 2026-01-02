@@ -1,4 +1,4 @@
-import { Card, H3, HTMLTable, FormGroup, Callout, RadioGroup, Radio } from '@blueprintjs/core'
+import { Card, H3, HTMLTable, FormGroup, Callout, RadioGroup, Radio, Button, Collapse } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
@@ -18,6 +18,7 @@ const INSTALLMENT_RATIOS = [0.225, 0.45, 0.675, 0.90]
 const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
   const { store } = props
   const [targetPercentage, setTargetPercentage] = useState<number>(0.9)
+  const [showDetails, setShowDetails] = useState(false)
 
   // Calculate total W2 entered in the quarterly fields
   const totalQuarterlyW2 = 
@@ -56,18 +57,13 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       // 1. Calculate Period Income
       
       // W2:
-      // For P1 (3mo): Q1
-      // For P2 (5mo): Q1 + Q2 * (2/3)
-      // For P3 (8mo): Q1 + Q2 + Q3 * (2/3)
-      // For P4 (12mo): Q1 + Q2 + Q3 + Q4
       let periodW2 = 0
       if (i === 0) periodW2 = store.w2IncomeQuarterly.q1
       else if (i === 1) periodW2 = store.w2IncomeQuarterly.q1 + (store.w2IncomeQuarterly.q2 * 2/3)
       else if (i === 2) periodW2 = store.w2IncomeQuarterly.q1 + store.w2IncomeQuarterly.q2 + (store.w2IncomeQuarterly.q3 * 2/3)
       else periodW2 = totalQuarterlyW2
 
-      // Calculate Withholding for the period (using same proration logic as income)
-      // This estimates "withholding paid during the period"
+      // Calculate Withholding for the period
       let periodWithholding = 0
       if (i === 0) periodWithholding = store.withholdingQuarterly.q1
       else if (i === 1) periodWithholding = store.withholdingQuarterly.q1 + (store.withholdingQuarterly.q2 * 2/3)
@@ -75,7 +71,6 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       else periodWithholding = totalQuarterlyWithholding
 
       // Investment Income:
-      // Same logic for each category
       const getPeriodAmount = (qData: {q1: number, q2: number, q3: number, q4: number}) => {
         if (i === 0) return qData.q1
         if (i === 1) return qData.q1 + (qData.q2 * 2/3)
@@ -83,12 +78,14 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         return qData.q1 + qData.q2 + qData.q3 + qData.q4
       }
 
+      const periodTaxableInterest = getPeriodAmount(store.investmentIncome.taxableInterest)
+      const periodQualifiedDividends = getPeriodAmount(store.investmentIncome.qualifiedDividends)
+      const periodNonQualifiedDividends = getPeriodAmount(store.investmentIncome.nonQualifiedDividends)
+      const periodLTG = getPeriodAmount(store.investmentIncome.longTermCapitalGains)
+      const periodSTG = getPeriodAmount(store.investmentIncome.shortTermCapitalGains)
+      const periodInvestment = periodTaxableInterest + periodQualifiedDividends + periodNonQualifiedDividends + periodLTG + periodSTG
+
       // Options:
-      // Filter by date. 
-      // P1: <= 3/31
-      // P2: <= 5/31
-      // P3: <= 8/31
-      // P4: <= 12/31
       const periodOptions = store.optionExercises.filter(opt => {
         const month = parseInt(opt.date.split('-')[1], 10)
         if (i === 0) return month <= 3
@@ -97,6 +94,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         return true
       }).reduce((sum, opt) => sum + opt.amount, 0)
 
+      const totalPeriodIncome = periodW2 + periodInvestment + periodOptions
 
       // 2. Annualize
       const factor = period.factor
@@ -114,7 +112,6 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       mockStore.foreignTaxCredit = baseData.foreignTaxCredit
 
       // Set Annualized Income
-      // We clear existing arrays and add one large entry
       mockStore.w2Income = []
       mockStore.addW2Income('Annualized W2', annualizedW2)
       
@@ -124,26 +121,22 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       }
 
       // Set Annualized Investment Income
-      // We'll just put everything in Q1 of the mock store
-      mockStore.investmentIncome.taxableInterest.q1 = getPeriodAmount(store.investmentIncome.taxableInterest) * factor
+      mockStore.investmentIncome.taxableInterest.q1 = periodTaxableInterest * factor
       mockStore.investmentIncome.taxFreeInterest.q1 = getPeriodAmount(store.investmentIncome.taxFreeInterest) * factor
-      mockStore.investmentIncome.qualifiedDividends.q1 = getPeriodAmount(store.investmentIncome.qualifiedDividends) * factor
-      mockStore.investmentIncome.nonQualifiedDividends.q1 = getPeriodAmount(store.investmentIncome.nonQualifiedDividends) * factor
-      mockStore.investmentIncome.longTermCapitalGains.q1 = getPeriodAmount(store.investmentIncome.longTermCapitalGains) * factor
-      mockStore.investmentIncome.shortTermCapitalGains.q1 = getPeriodAmount(store.investmentIncome.shortTermCapitalGains) * factor
+      mockStore.investmentIncome.qualifiedDividends.q1 = periodQualifiedDividends * factor
+      mockStore.investmentIncome.nonQualifiedDividends.q1 = periodNonQualifiedDividends * factor
+      mockStore.investmentIncome.longTermCapitalGains.q1 = periodLTG * factor
+      mockStore.investmentIncome.shortTermCapitalGains.q1 = periodSTG * factor
 
       // Calculate Tax
       const form1040 = new Form1040(mockStore)
       const annualizedTax = form1040.tax
+      const annualizedAGI = form1040.getAgi()
       
       // 3. Calculate Required Installment
       const targetAnnualPayment = annualizedTax * targetPercentage
       const cumulativeTarget = targetAnnualPayment * installmentRatio
       
-      // Withholding is treated as paid based on actual distribution
-      // Use the calculated periodWithholding (which includes proration for 5/8 month periods)
-      // Note: Schedule AI instructions say "Enter tax withheld... for the months shown". 
-      // This implies actuals. Our 'periodWithholding' variable calculates this.
       const withholdingDeemedPaid = periodWithholding
       
       const neededTotal = Math.max(0, cumulativeTarget - withholdingDeemedPaid)
@@ -151,7 +144,12 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       
       results.push({
         periodName: period.name,
-        annualizedIncome: form1040.getAgi(),
+        periodW2,
+        periodInvestment,
+        periodOptions,
+        totalPeriodIncome,
+        annualizationFactor: factor,
+        annualizedAGI,
         annualizedTax,
         cumulativeTarget,
         withholdingDeemedPaid,
@@ -165,7 +163,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
   }, [store.w2IncomeQuarterly, store.w2Income, store.investmentIncome, store.optionExercises, 
       store.hsaContribution, store.propertyTaxes, store.foreignTaxCredit,
       totalQuarterlyW2, totalActualW2, targetPercentage, store.totalWithholding, 
-      store.withholdingQuarterly, totalQuarterlyWithholding]) // Add dependencies
+      store.withholdingQuarterly, totalQuarterlyWithholding])
 
   const totalRequired = calculations.reduce((sum, c) => sum + c.requiredPayment, 0)
 
@@ -258,7 +256,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       </div>
 
       <H3>Schedule AI (Annualized Income Installment)</H3>
-      <Card>
+      <Card style={{ marginBottom: '16px' }}>
         <div style={{ marginBottom: '20px' }}>
           <FormGroup label="Target Liability Percentage (Safe Harbor Rule)" inline>
             <RadioGroup
@@ -291,9 +289,6 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
                         <td><NumericFormat value={Math.round(row.cumulativeTarget)} displayType="text" thousandSeparator={true} prefix="$" /></td>
                         <td>
                           <NumericFormat value={Math.round(row.withholdingDeemedPaid)} displayType="text" thousandSeparator={true} prefix="$" />
-                          <div style={{ fontSize: '0.8em', color: '#888' }}>
-                            ({(i + 1) * 25}% of <NumericFormat value={store.totalWithholding} displayType="text" thousandSeparator={true} prefix="$" />)
-                          </div>
                         </td>
                         <td style={{ fontWeight: 'bold', color: '#106ba3' }}>
                             <NumericFormat value={Math.round(row.requiredPayment)} displayType="text" thousandSeparator={true} prefix="$" />
@@ -310,6 +305,80 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
                 </tr>
             </tfoot>
         </HTMLTable>
+        
+        <div style={{ marginTop: '20px' }}>
+          <Button 
+            minimal 
+            small 
+            rightIcon={showDetails ? "chevron-up" : "chevron-down"} 
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? "Hide Detailed Calculation Breakdown" : "Show Detailed Calculation Breakdown"}
+          </Button>
+          
+          <Collapse isOpen={showDetails}>
+            <div style={{ marginTop: '10px', overflowX: 'auto' }}>
+              <HTMLTable bordered compact style={{ width: '100%', fontSize: '0.85em' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f5f8fa' }}>
+                    <th style={{ width: '30%' }}>Calculation Step</th>
+                    <th style={{ width: '17.5%' }}>Period 1 (3mo)</th>
+                    <th style={{ width: '17.5%' }}>Period 2 (5mo)</th>
+                    <th style={{ width: '17.5%' }}>Period 3 (8mo)</th>
+                    <th style={{ width: '17.5%' }}>Period 4 (12mo)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>(1) Period W2 Income</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodW2)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(2) Period Investment Income</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodInvestment)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(3) Period Options Income</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodOptions)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr style={{ borderTop: '1px solid #ddd' }}>
+                    <td><strong>(4) Total Period Income (1+2+3)</strong></td>
+                    {calculations.map((c, i) => <td key={i}><strong><NumericFormat value={Math.round(c.totalPeriodIncome)} displayType="text" thousandSeparator={true} prefix="$" /></strong></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(5) Annualization Factor</strong></td>
+                    {calculations.map((c, i) => <td key={i}>x {c.annualizationFactor}</td>)}
+                  </tr>
+                  <tr style={{ borderTop: '1px solid #ddd' }}>
+                    <td><strong>(6) Annualized Income (4 x 5)</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedAGI)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(7) Calculated Tax on (6)</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedTax)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(8) Target Percentage</strong></td>
+                    <td colSpan={4} style={{ textAlign: 'center' }}>{Math.round(targetPercentage * 100)}%</td>
+                  </tr>
+                  <tr>
+                    <td><strong>(9) Installment Ratio</strong></td>
+                    {INSTALLMENT_RATIOS.map((r, i) => <td key={i}>{r * 100}%</td>)}
+                  </tr>
+                  <tr style={{ backgroundColor: '#fff9e6' }}>
+                    <td><strong>(10) Cumulative Target (7 x 8 x 9)</strong></td>
+                    {calculations.map((c, i) => <td key={i}><strong><NumericFormat value={Math.round(c.cumulativeTarget)} displayType="text" thousandSeparator={true} prefix="$" /></strong></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(11) Withholding for Period</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.withholdingDeemedPaid)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                </tbody>
+              </HTMLTable>
+            </div>
+          </Collapse>
+        </div>
+
         <div style={{ marginTop: '16px', fontSize: '0.9em', color: '#666' }}>
             * This tool uses the Annualized Income Installment Method (Schedule AI). 
             Withholding is calculated based on the quarterly distribution entered above.
