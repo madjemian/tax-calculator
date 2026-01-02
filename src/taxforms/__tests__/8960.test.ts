@@ -1,5 +1,4 @@
 import { Form8960, type NetInvestmentIncomeTaxProvider } from '../8960';
-import { NIIT_THRESHOLD } from '../1040';
 
 describe('Form8960', () => {
   const createMockProvider = (

@@ -6,6 +6,7 @@ import W2IncomeTab from './W2IncomeTab'
 import InvestmentIncomeTab from './InvestmentIncomeTab'
 import DeductionsTab from './DeductionsTab'
 import TaxesPaidTab from './TaxesPaidTab'
+import EstimatedPaymentsTab from './EstimatedPaymentsTab'
 
 const TabbedUserInputs = observer(() => {
   const userInputStore = useContext(userInputStoreContext)
@@ -16,6 +17,7 @@ const TabbedUserInputs = observer(() => {
       <Tab id="investment-income" title={<strong>Investment Income</strong>} panel={<InvestmentIncomeTab store={userInputStore} />} />
       <Tab id="deductions" title={<strong>Income Deductions</strong>} panel={<DeductionsTab store={userInputStore} />} />
       <Tab id="taxes-paid" title={<strong>Taxes Paid</strong>} panel={<TaxesPaidTab store={userInputStore} />} />
+      <Tab id="estimated-payments" title={<strong>Estimated Payments</strong>} panel={<EstimatedPaymentsTab store={userInputStore} />} />
     </Tabs>
   )
 })

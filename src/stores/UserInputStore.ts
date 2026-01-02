@@ -6,6 +6,8 @@ import { BackupService } from '../utils/BackupService'
 export type UserInputData = {
   w2Income: W2Income[]
   optionExercises: OptionExercise[]
+  w2IncomeQuarterly?: QuarterlyData
+  withholdingQuarterly?: QuarterlyData
   investmentIncome: InvestmentIncome
   hsaContribution: number
   _401kContribution: number
@@ -28,6 +30,12 @@ export class UserInputStore implements UserInputData {
   // W2 income fields
   w2Income: W2Income[] = []
   optionExercises: OptionExercise[] = []
+  
+  // W2 income quarterly distribution (for Schedule AI)
+  w2IncomeQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
+  
+  // Withholding quarterly distribution (for Schedule AI)
+  withholdingQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
 
   // Investment income fields (quarterly)
   investmentIncome: InvestmentIncome = {
@@ -71,6 +79,8 @@ export class UserInputStore implements UserInputData {
     return {
       w2Income: this.w2Income,
       optionExercises: this.optionExercises,
+      w2IncomeQuarterly: this.w2IncomeQuarterly,
+      withholdingQuarterly: this.withholdingQuarterly,
       investmentIncome: this.investmentIncome,
       hsaContribution: this.hsaContribution,
       _401kContribution: this._401kContribution,
@@ -91,6 +101,8 @@ export class UserInputStore implements UserInputData {
     if (data) {
       this.w2Income = data.w2Income || []
       this.optionExercises = data.optionExercises || []
+      this.w2IncomeQuarterly = data.w2IncomeQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
+      this.withholdingQuarterly = data.withholdingQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
       this.investmentIncome = {
         taxFreeInterest: data.investmentIncome?.taxFreeInterest || { q1: 0, q2: 0, q3: 0, q4: 0 },
         taxableInterest: data.investmentIncome?.taxableInterest || { q1: 0, q2: 0, q3: 0, q4: 0 },
@@ -145,6 +157,14 @@ export class UserInputStore implements UserInputData {
 
   removeOptionExercise(id: string) {
     this.optionExercises = this.optionExercises.filter(o => o.id !== id)
+  }
+
+  updateW2IncomeQuarterly(quarter: keyof QuarterlyData, value: number) {
+    this.w2IncomeQuarterly[quarter] = value
+  }
+
+  updateWithholdingQuarterly(quarter: keyof QuarterlyData, value: number) {
+    this.withholdingQuarterly[quarter] = value
   }
 
   updateInvestmentIncome(category: keyof InvestmentIncome, quarter: keyof QuarterlyData, value: number) {
