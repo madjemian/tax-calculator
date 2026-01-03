@@ -2,6 +2,7 @@ import { Card, H3, FormGroup, Button, InputGroup } from '@blueprintjs/core'
 import { Trash, Plus } from '@blueprintjs/icons'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
+import { NumericFormat } from 'react-number-format'
 import type { UserInputStore } from '../../stores/UserInputStore'
 
 const W2IncomeTab = observer((props: { store: UserInputStore }) => {
@@ -115,7 +116,16 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
         
         <Card style={{ backgroundColor: '#f5f5f5' }}>
           <FormGroup label={<strong>Total W2 Income</strong>} style={{ minWidth: '200px' }}>
-            <NumberInput value={Math.round(store.totalW2Income)} />
+            <div className="bp4-input-group">
+                <NumericFormat 
+                    className="bp4-input"
+                    value={Math.round(store.totalW2Income)} 
+                    displayType={'text'} 
+                    thousandSeparator={true} 
+                    prefix={'$'} 
+                    style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                />
+            </div>
           </FormGroup>
         </Card>
       </div>

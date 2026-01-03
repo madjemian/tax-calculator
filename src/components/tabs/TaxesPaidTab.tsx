@@ -70,13 +70,40 @@ const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
         <Card style={{ backgroundColor: '#f5f5f5' }}>
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
             <FormGroup label={<strong>Total Withholding</strong>} style={{ minWidth: '200px' }}>
-              <NumberInput value={Math.round(store.totalWithholding)} />
+              <div className="bp4-input-group">
+                <NumericFormat 
+                  className="bp4-input"
+                  value={Math.round(store.totalWithholding)} 
+                  displayType={'text'} 
+                  thousandSeparator={true} 
+                  prefix={'$'} 
+                  style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                />
+              </div>
             </FormGroup>
             <FormGroup label={<strong>Total Estimated Tax Paid</strong>} style={{ minWidth: '200px' }}>
-              <NumberInput value={Math.round(store.totalEstimatedTaxPaid)} />
+              <div className="bp4-input-group">
+                <NumericFormat 
+                  className="bp4-input"
+                  value={Math.round(store.totalEstimatedTaxPaid)} 
+                  displayType={'text'} 
+                  thousandSeparator={true} 
+                  prefix={'$'} 
+                  style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                />
+              </div>
             </FormGroup>
             <FormGroup label={<strong>Total Tax Credit</strong>} style={{ minWidth: '200px' }}>
-              <NumberInput value={Math.round(store.totalTaxCredit)} />
+              <div className="bp4-input-group">
+                <NumericFormat 
+                  className="bp4-input"
+                  value={Math.round(store.totalTaxCredit)} 
+                  displayType={'text'} 
+                  thousandSeparator={true} 
+                  prefix={'$'} 
+                  style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                />
+              </div>
             </FormGroup>
           </div>
         </Card>

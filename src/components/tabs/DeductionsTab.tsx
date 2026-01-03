@@ -1,6 +1,7 @@
 import { Card, H3, FormGroup } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
+import { NumericFormat } from 'react-number-format'
 import type { UserInputStore } from '../../stores/UserInputStore'
 
 const DeductionsTab = observer((props: { store: UserInputStore }) => {
@@ -26,7 +27,16 @@ const DeductionsTab = observer((props: { store: UserInputStore }) => {
         
         <Card style={{ backgroundColor: '#f5f5f5' }}>
           <FormGroup label={<strong>Total Deductions</strong>} style={{ minWidth: '200px' }}>
-            <NumberInput value={Math.round(store.totalDeductions)} />
+            <div className="bp4-input-group">
+                <NumericFormat 
+                    className="bp4-input"
+                    value={Math.round(store.totalDeductions)} 
+                    displayType={'text'} 
+                    thousandSeparator={true} 
+                    prefix={'$'} 
+                    style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                />
+            </div>
           </FormGroup>
         </Card>
       </div>
