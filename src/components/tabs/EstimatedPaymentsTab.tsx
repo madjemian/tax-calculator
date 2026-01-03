@@ -4,7 +4,7 @@ import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
 import { UserInputStore } from '../../stores/UserInputStore'
 import { Form1040 } from '../../taxforms/1040'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 const PERIODS = [
   { name: 'Jan 1 - Mar 31', months: 3, factor: 4, label: 'Q1' },
@@ -42,7 +42,8 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
   const withholdingMismatch = Math.abs(totalQuarterlyWithholding - totalActualWithholding) > 1
 
   // Perform Schedule AI Calculations
-  const calculations = useMemo(() => {
+  // Not using useMemo because deep observation of investmentIncome is required
+  const calculations = (() => {
     const results = []
     let priorRequiredPayments = 0
 
@@ -163,10 +164,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
     }
 
     return results
-  }, [store.w2IncomeQuarterly, store.w2Income, store.investmentIncome, store.optionExercises, 
-      store.hsaContribution, store.propertyTaxes, store.foreignTaxCredit,
-      totalQuarterlyW2, totalActualW2, targetPercentage, store.totalWithholding, 
-      store.withholdingQuarterly, totalQuarterlyWithholding])
+  })()
 
   const totalRequired = calculations.reduce((sum, c) => sum + c.requiredPayment, 0)
 
