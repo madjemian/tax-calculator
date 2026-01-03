@@ -142,6 +142,8 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       const neededTotal = Math.max(0, cumulativeTarget - withholdingDeemedPaid)
       const requiredPayment = Math.max(0, neededTotal - priorRequiredPayments)
       
+      const annualizedGross = totalPeriodIncome * factor
+
       results.push({
         periodName: period.name,
         periodW2,
@@ -149,6 +151,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         periodOptions,
         totalPeriodIncome,
         annualizationFactor: factor,
+        annualizedGross,
         annualizedAGI,
         annualizedTax,
         cumulativeTarget,
@@ -350,27 +353,35 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
                     {calculations.map((c, i) => <td key={i}>x {c.annualizationFactor}</td>)}
                   </tr>
                   <tr style={{ borderTop: '1px solid #ddd' }}>
-                    <td><strong>(6) Annualized Income (4 x 5)</strong></td>
+                    <td><strong>(6) Annualized Gross Income (4 x 5)</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedGross)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(7) Less: Annual Adjustments</strong></td>
+                    {calculations.map((c, i) => <td key={i} style={{color: '#d32f2f'}}>(<NumericFormat value={Math.round(c.annualizedGross - c.annualizedAGI)} displayType="text" thousandSeparator={true} prefix="$" />)</td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(8) Annualized AGI (6 - 7)</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedAGI)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(7) Calculated Tax on (6)</strong></td>
+                    <td><strong>(9) Calculated Tax on (8)</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedTax)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(8) Target Percentage</strong></td>
+                    <td><strong>(10) Target Percentage</strong></td>
                     <td colSpan={4} style={{ textAlign: 'center' }}>{Math.round(targetPercentage * 100)}%</td>
                   </tr>
                   <tr>
-                    <td><strong>(9) Installment Ratio</strong></td>
+                    <td><strong>(11) Installment Ratio</strong></td>
                     {INSTALLMENT_RATIOS.map((r, i) => <td key={i}>{r * 100}%</td>)}
                   </tr>
                   <tr style={{ backgroundColor: '#fff9e6' }}>
-                    <td><strong>(10) Cumulative Target (7 x 8 x 9)</strong></td>
+                    <td><strong>(12) Cumulative Target (9 x 10 x 11)</strong></td>
                     {calculations.map((c, i) => <td key={i}><strong><NumericFormat value={Math.round(c.cumulativeTarget)} displayType="text" thousandSeparator={true} prefix="$" /></strong></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(11) Withholding for Period</strong></td>
+                    <td><strong>(13) Withholding for Period</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.withholdingDeemedPaid)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                 </tbody>
