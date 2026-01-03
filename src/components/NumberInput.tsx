@@ -16,10 +16,12 @@ const NumberInput = (props: {value: number, changeFunction?: (value: number) => 
         // TODO: keep track of changes so we can implement undo/redo
         // can potentially implement by pushing a thunk into a stack on every change
         // if the input value is not a number, reset it to 0
-        if (isNaN(inputValue)) {
+        let finalValue = inputValue
+        if (isNaN(finalValue)) {
+          finalValue = 0
           setInputValue(0)
         }
-        return props.changeFunction && props.changeFunction(inputValue)
+        return props.changeFunction && props.changeFunction(finalValue)
       }}
     />
   )
