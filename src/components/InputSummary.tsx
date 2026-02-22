@@ -53,6 +53,13 @@ const InputSummary = observer(() => {
             <NumericFormat value={Math.round(userInputStore.totalW2Income)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
           </div>
         </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Business Profit</strong>
+          <div>
+            <NumericFormat value={Math.round(userInputStore.totalBusinessProfit)} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
         
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Investment Income</strong>

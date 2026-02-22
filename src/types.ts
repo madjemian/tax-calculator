@@ -6,6 +6,13 @@ export type W2Income = {
   daysInCA?: number // Days worked in California (out of 365)
 }
 
+export type BusinessIncome = {
+  id: string
+  name: string
+  income: number
+  expenses: number
+}
+
 export type OptionExercise = {
   id: string
   date: string

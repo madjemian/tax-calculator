@@ -46,7 +46,7 @@ export class Form1040 extends TaxForm
   constructor(store: UserInputStore) {
     super()
     this.store = store
-    this.schedule1 = new Schedule1()
+    this.schedule1 = new Schedule1(this)
     this.schedule2 = new Schedule2(this)
     this.schedule3 = new Schedule3(this)
     this.scheduleA = new ScheduleA(this)
@@ -111,6 +111,10 @@ export class Form1040 extends TaxForm
     return Math.round(this.calculations.line33())
   }
 
+  get selfEmploymentTax(): number {
+    return Math.round(this.schedule2.selfEmploymentTax)
+  }
+
   get refund(): number {
     // if negative, return 0
     return Math.max(this.calculations.line34(), 0)
@@ -144,6 +148,18 @@ export class Form1040 extends TaxForm
 
   getNetCapitalGain(): number {
     return this.store.longTermCapitalGains + this.store.shortTermCapitalGains
+  }
+
+  getTotalBusinessProfit(): number {
+    return this.store.totalBusinessProfit
+  }
+
+  getW2Income(): number {
+    return this.store.totalW2Income
+  }
+
+  getSelfEmploymentIncome(): number {
+    return this.store.totalBusinessProfit * 0.9235
   }
 
   // CapitalGainsProvider implementation

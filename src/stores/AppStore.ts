@@ -19,6 +19,10 @@ export class AppStore {
     return this.form1040.tax
   }
 
+  get selfEmploymentTax(): number {
+    return this.form1040.selfEmploymentTax
+  }
+
   get payments(): number {
     return this.form1040.payments
   }

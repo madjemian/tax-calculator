@@ -91,6 +91,7 @@ export class BackupService {
     // Create normalized data with defaults for missing fields
     const normalizedData: UserInputData = {
       w2Income: [],
+      businessIncome: [],
       optionExercises: [],
       investmentIncome: {
         taxFreeInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
@@ -124,6 +125,17 @@ export class BackupService {
       }
     } else if (backupData.data.w2Income) {
       warnings.push('W2 income data format invalid, using empty array')
+    }
+
+    if (Array.isArray(backupData.data.businessIncome)) {
+      normalizedData.businessIncome = backupData.data.businessIncome.filter((b: any) =>
+        b.id && typeof b.name === 'string' && typeof b.income === 'number'
+      )
+      if (normalizedData.businessIncome.length !== backupData.data.businessIncome.length) {
+        warnings.push('Some business income entries were skipped due to invalid format')
+      }
+    } else if (backupData.data.businessIncome) {
+      warnings.push('Business income data format invalid, using empty array')
     }
 
     if (Array.isArray(backupData.data.optionExercises)) {

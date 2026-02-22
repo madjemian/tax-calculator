@@ -31,6 +31,16 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
   
   const w2Mismatch = Math.abs(totalQuarterlyW2 - totalActualW2) > 1
 
+  // Calculate total Business Profit entered in the quarterly fields
+  const totalQuarterlyBusinessProfit = 
+    store.businessProfitQuarterly.q1 + 
+    store.businessProfitQuarterly.q2 + 
+    store.businessProfitQuarterly.q3 + 
+    store.businessProfitQuarterly.q4
+
+  const totalActualBusinessProfit = store.totalBusinessProfit
+  const businessProfitMismatch = Math.abs(totalQuarterlyBusinessProfit - totalActualBusinessProfit) > 1
+
   // Calculate total Withholding entered in quarterly fields
   const totalQuarterlyWithholding = 
     store.withholdingQuarterly.q1 + 
@@ -64,6 +74,13 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       else if (i === 2) periodW2 = store.w2IncomeQuarterly.q1 + store.w2IncomeQuarterly.q2 + (store.w2IncomeQuarterly.q3 * 2/3)
       else periodW2 = totalQuarterlyW2
 
+      // Business Profit:
+      let periodBusinessProfit = 0
+      if (i === 0) periodBusinessProfit = store.businessProfitQuarterly.q1
+      else if (i === 1) periodBusinessProfit = store.businessProfitQuarterly.q1 + (store.businessProfitQuarterly.q2 * 2/3)
+      else if (i === 2) periodBusinessProfit = store.businessProfitQuarterly.q1 + store.businessProfitQuarterly.q2 + (store.businessProfitQuarterly.q3 * 2/3)
+      else periodBusinessProfit = totalQuarterlyBusinessProfit
+
       // Calculate Withholding for the period
       let periodWithholding = 0
       if (i === 0) periodWithholding = store.withholdingQuarterly.q1
@@ -95,11 +112,12 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         return true
       }).reduce((sum, opt) => sum + opt.amount, 0)
 
-      const totalPeriodIncome = periodW2 + periodInvestment + periodOptions
+      const totalPeriodIncome = periodW2 + periodBusinessProfit + periodInvestment + periodOptions
 
       // 2. Annualize
       const factor = period.factor
       const annualizedW2 = periodW2 * factor
+      const annualizedBusinessProfit = periodBusinessProfit * factor
       const annualizedOptions = periodOptions * factor
       
       // Create Mock Store
@@ -115,6 +133,11 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       // Set Annualized Income
       mockStore.w2Income = []
       mockStore.addW2Income('Annualized W2', annualizedW2)
+
+      mockStore.businessIncome = []
+      if (annualizedBusinessProfit !== 0) {
+        mockStore.addBusinessIncome('Annualized Business', annualizedBusinessProfit, 0)
+      }
       
       mockStore.optionExercises = []
       if (annualizedOptions > 0) {
@@ -148,6 +171,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
       results.push({
         periodName: period.name,
         periodW2,
+        periodBusinessProfit,
         periodInvestment,
         periodOptions,
         totalPeriodIncome,
@@ -214,6 +238,50 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         </div>
 
         <div style={{ flex: 1 }}>
+          <H3>Business Profit Quarterly Distribution</H3>
+          <Callout intent={businessProfitMismatch ? "warning" : "primary"} style={{ marginBottom: '16px' }}>
+            Total Business Profit: <NumericFormat value={totalActualBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
+            <br />
+            Distributed: <NumericFormat value={totalQuarterlyBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
+            {businessProfitMismatch && <strong> (Mismatch!)</strong>}
+          </Callout>
+
+          <Card style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
+                <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
+                  <NumberInput value={store.businessProfitQuarterly.q1} changeFunction={(v) => store.updateBusinessProfitQuarterly('q1', v)} />
+                </FormGroup>
+                <FormGroup label={<strong>Q2</strong>} style={{ flex: '1' }}>
+                  <NumberInput value={store.businessProfitQuarterly.q2} changeFunction={(v) => store.updateBusinessProfitQuarterly('q2', v)} />
+                </FormGroup>
+                <FormGroup label={<strong>Q3</strong>} style={{ flex: '1' }}>
+                  <NumberInput value={store.businessProfitQuarterly.q3} changeFunction={(v) => store.updateBusinessProfitQuarterly('q3', v)} />
+                </FormGroup>
+                <FormGroup label={<strong>Q4</strong>} style={{ flex: '1' }}>
+                  <NumberInput value={store.businessProfitQuarterly.q4} changeFunction={(v) => store.updateBusinessProfitQuarterly('q4', v)} />
+                </FormGroup>
+            </div>
+            <div style={{ marginTop: '10px' }}>
+                <button 
+                    type="button" 
+                    className="bp4-button" 
+                    onClick={() => {
+                        const quarter = totalActualBusinessProfit / 4
+                        store.updateBusinessProfitQuarterly('q1', quarter)
+                        store.updateBusinessProfitQuarterly('q2', quarter)
+                        store.updateBusinessProfitQuarterly('q3', quarter)
+                        store.updateBusinessProfitQuarterly('q4', quarter)
+                    }}
+                >
+                    Distribute Evenly
+                </button>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '20px' }}>
+        <div style={{ flex: 1 }}>
           <H3>Withholding Quarterly Distribution</H3>
           <Callout intent={withholdingMismatch ? "warning" : "primary"} style={{ marginBottom: '16px' }}>
             Total Withholding: <NumericFormat value={totalActualWithholding} displayType="text" thousandSeparator={true} prefix="$" />
@@ -254,6 +322,7 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
             </div>
           </Card>
         </div>
+        <div style={{ flex: 1 }}></div>
       </div>
 
       <H3>Schedule AI (Annualized Income Installment)</H3>
@@ -335,51 +404,55 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodW2)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(2) Period Investment Income</strong></td>
+                    <td><strong>(2) Period Business Profit</strong></td>
+                    {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodBusinessProfit)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
+                  </tr>
+                  <tr>
+                    <td><strong>(3) Period Investment Income</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodInvestment)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(3) Period Options Income</strong></td>
+                    <td><strong>(4) Period Options Income</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.periodOptions)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr style={{ borderTop: '1px solid #ddd' }}>
-                    <td><strong>(4) Total Period Income (1+2+3)</strong></td>
+                    <td><strong>(5) Total Period Income (1+2+3+4)</strong></td>
                     {calculations.map((c, i) => <td key={i}><strong><NumericFormat value={Math.round(c.totalPeriodIncome)} displayType="text" thousandSeparator={true} prefix="$" /></strong></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(5) Annualization Factor</strong></td>
+                    <td><strong>(6) Annualization Factor</strong></td>
                     {calculations.map((c, i) => <td key={i}>x {c.annualizationFactor}</td>)}
                   </tr>
                   <tr style={{ borderTop: '1px solid #ddd' }}>
-                    <td><strong>(6) Annualized Gross Income (4 x 5)</strong></td>
+                    <td><strong>(7) Annualized Gross Income (5 x 6)</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedGross)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(7) Less: Annual Adjustments</strong></td>
+                    <td><strong>(8) Less: Annual Adjustments</strong></td>
                     {calculations.map((c, i) => <td key={i} style={{color: '#d32f2f'}}>(<NumericFormat value={Math.round(c.annualizedGross - c.annualizedAGI)} displayType="text" thousandSeparator={true} prefix="$" />)</td>)}
                   </tr>
                   <tr>
-                    <td><strong>(8) Annualized AGI (6 - 7)</strong></td>
+                    <td><strong>(9) Annualized AGI (7 - 8)</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedAGI)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(9) Calculated Tax on (8)</strong></td>
+                    <td><strong>(10) Calculated Tax on (9)</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.annualizedTax)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(10) Target Percentage</strong></td>
+                    <td><strong>(11) Target Percentage</strong></td>
                     <td colSpan={4} style={{ textAlign: 'center' }}>{Math.round(targetPercentage * 100)}%</td>
                   </tr>
                   <tr>
-                    <td><strong>(11) Installment Ratio</strong></td>
+                    <td><strong>(12) Installment Ratio</strong></td>
                     {INSTALLMENT_RATIOS.map((r, i) => <td key={i}>{r * 100}%</td>)}
                   </tr>
                   <tr style={{ backgroundColor: '#fff9e6' }}>
-                    <td><strong>(12) Cumulative Target (9 x 10 x 11)</strong></td>
+                    <td><strong>(13) Cumulative Target (10 x 11 x 12)</strong></td>
                     {calculations.map((c, i) => <td key={i}><strong><NumericFormat value={Math.round(c.cumulativeTarget)} displayType="text" thousandSeparator={true} prefix="$" /></strong></td>)}
                   </tr>
                   <tr>
-                    <td><strong>(13) Withholding for Period</strong></td>
+                    <td><strong>(14) Withholding for Period</strong></td>
                     {calculations.map((c, i) => <td key={i}><NumericFormat value={Math.round(c.withholdingDeemedPaid)} displayType="text" thousandSeparator={true} prefix="$" /></td>)}
                   </tr>
                 </tbody>

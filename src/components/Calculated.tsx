@@ -44,6 +44,15 @@ const CalculatedValues = observer(() => {
           </div>
         </div>
 
+        {appStore.selfEmploymentTax > 0 && (
+          <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+            <strong>Inc. Self-Employment Tax</strong>
+            <div>
+              <NumericFormat value={appStore.selfEmploymentTax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+            </div>
+          </div>
+        )}
+
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Tax Payments</strong>
           <div>

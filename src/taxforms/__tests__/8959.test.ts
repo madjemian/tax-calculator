@@ -2,8 +2,9 @@ import { Form8959, type AdditionalMedicareTaxProvider } from '../8959';
 import { ADDITIONAL_MEDICARE_TAX_THRESHOLD } from '../1040';
 
 describe('Form8959', () => {
-  const createMockProvider = (medicareWages: number): AdditionalMedicareTaxProvider => ({
-    getMedicareWages: () => medicareWages
+  const createMockProvider = (medicareWages: number, seIncome: number = 0): AdditionalMedicareTaxProvider => ({
+    getMedicareWages: () => medicareWages,
+    getSelfEmploymentIncome: () => seIncome
   });
 
   describe('additionalMedicareTax', () => {

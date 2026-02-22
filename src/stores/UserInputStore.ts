@@ -1,12 +1,14 @@
 import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
-import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData } from '../types'
+import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData, BusinessIncome } from '../types'
 import { BackupService } from '../utils/BackupService'
 
 export type UserInputData = {
   w2Income: W2Income[]
+  businessIncome: BusinessIncome[]
   optionExercises: OptionExercise[]
   w2IncomeQuarterly?: QuarterlyData
+  businessProfitQuarterly?: QuarterlyData
   withholdingQuarterly?: QuarterlyData
   investmentIncome: InvestmentIncome
   hsaContribution: number
@@ -27,12 +29,16 @@ export class UserInputStore implements UserInputData {
   // This class will handle user inputs for the tax calculator
   // It will manage the state of user inputs and provide methods to update them
 
-  // W2 income fields
+  // Work income fields
   w2Income: W2Income[] = []
+  businessIncome: BusinessIncome[] = []
   optionExercises: OptionExercise[] = []
   
   // W2 income quarterly distribution (for Schedule AI)
   w2IncomeQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
+
+  // Business profit quarterly distribution (for Schedule AI)
+  businessProfitQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
   
   // Withholding quarterly distribution (for Schedule AI)
   withholdingQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
@@ -78,8 +84,10 @@ export class UserInputStore implements UserInputData {
   serialize(): UserInputData {
     return {
       w2Income: this.w2Income,
+      businessIncome: this.businessIncome,
       optionExercises: this.optionExercises,
       w2IncomeQuarterly: this.w2IncomeQuarterly,
+      businessProfitQuarterly: this.businessProfitQuarterly,
       withholdingQuarterly: this.withholdingQuarterly,
       investmentIncome: this.investmentIncome,
       hsaContribution: this.hsaContribution,
@@ -100,8 +108,10 @@ export class UserInputStore implements UserInputData {
   deserialize(data: UserInputData) {
     if (data) {
       this.w2Income = data.w2Income || []
+      this.businessIncome = data.businessIncome || []
       this.optionExercises = data.optionExercises || []
       this.w2IncomeQuarterly = data.w2IncomeQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
+      this.businessProfitQuarterly = data.businessProfitQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
       this.withholdingQuarterly = data.withholdingQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
       this.investmentIncome = {
         taxFreeInterest: data.investmentIncome?.taxFreeInterest || { q1: 0, q2: 0, q3: 0, q4: 0 },
@@ -143,6 +153,22 @@ export class UserInputStore implements UserInputData {
     this.w2Income = this.w2Income.filter(w => w.id !== id)
   }
 
+  addBusinessIncome(name: string = 'New 1099', income: number = 0, expenses: number = 0) {
+    const id = uuidv4()
+    this.businessIncome.push({ id, name, income, expenses })
+  }
+
+  updateBusinessIncome(id: string, updates: Partial<Omit<BusinessIncome, 'id'>>) {
+    const business = this.businessIncome.find(b => b.id === id)
+    if (business) {
+      Object.assign(business, updates)
+    }
+  }
+
+  removeBusinessIncome(id: string) {
+    this.businessIncome = this.businessIncome.filter(b => b.id !== id)
+  }
+
   addOptionExercise(date: string = new Date().toISOString().split('T')[0], amount: number = 0, withholding: number = 0, caTaxablePercent?: number) {
     const id = uuidv4()
     this.optionExercises.push({ id, date, amount, withholding, caTaxablePercent })
@@ -161,6 +187,10 @@ export class UserInputStore implements UserInputData {
 
   updateW2IncomeQuarterly(quarter: keyof QuarterlyData, value: number) {
     this.w2IncomeQuarterly[quarter] = value
+  }
+
+  updateBusinessProfitQuarterly(quarter: keyof QuarterlyData, value: number) {
+    this.businessProfitQuarterly[quarter] = value
   }
 
   updateWithholdingQuarterly(quarter: keyof QuarterlyData, value: number) {
@@ -255,6 +285,10 @@ export class UserInputStore implements UserInputData {
     return this.w2Income.reduce((sum, w2) => sum + w2.withholding, 0)
   }
 
+  get totalBusinessProfit(): number {
+    return this.businessIncome.reduce((sum, b) => sum + (b.income - b.expenses), 0)
+  }
+
   get totalOptionWithholding(): number {
     return this.optionExercises.reduce((sum, option) => sum + option.withholding, 0)
   }
@@ -274,6 +308,7 @@ export class UserInputStore implements UserInputData {
   get totalRealIncome(): number {
     return (
       this.totalW2Income +
+      this.totalBusinessProfit +
       this.taxableInterest +
       this.totalDividends +
       this.longTermCapitalGains +
@@ -299,18 +334,19 @@ export class UserInputStore implements UserInputData {
   }
 
   get totalCATaxableIncome(): number {
-    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome
+    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome + this.totalBusinessProfit
   }
 
-  // Total income subject to CA tax calculation (W2 + options - deductions)
+  // Total income subject to CA tax calculation (W2 + business + options - deductions)
   get totalCACalculationBase(): number {
-    return this.totalW2Income - this.totalDeductions
+    return this.totalW2Income + this.totalBusinessProfit - this.totalDeductions
   }
 
   // Weighted ratio of CA taxable portion
   get caTaxableRatio(): number {
-    if (this.totalW2Income === 0) return 0
-    return this.totalCATaxableIncome / this.totalW2Income
+    const totalWorkIncome = this.totalW2Income + this.totalBusinessProfit
+    if (totalWorkIncome === 0) return 0
+    return this.totalCATaxableIncome / totalWorkIncome
   }
 
   exportBackup() {

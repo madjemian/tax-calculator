@@ -35,6 +35,7 @@ This is a personal tax calculation application for tax year 2026, built with Rea
 
 **Enhanced Input Data Structures:**
 - `W2Income[]` - Dynamic array of W2 entries with UUID, name, income, and withholding
+- `BusinessIncome[]` - Dynamic array of 1099/business entries with UUID, name, income, and expenses
 - `OptionExercise[]` - Dynamic array of option exercise batches with UUID, date, amount, and withholding  
 - `InvestmentIncome` - Quarterly data structure with Q1-Q4 values for each investment category
 - Computed properties provide backward compatibility for tax forms
@@ -42,7 +43,7 @@ This is a personal tax calculation application for tax year 2026, built with Rea
 **Tax Form Hierarchy:**
 - `TaxForm` (base class) - Abstract class with calculations dictionary pattern
 - `Form1040` (main form) - Implements provider interfaces, orchestrates all schedules
-- Supporting schedules (`Schedule1`, `Schedule2`, `ScheduleA`, `ScheduleD`, etc.)
+- Supporting schedules (`Schedule1`, `Schedule2`, `ScheduleA`, `ScheduleD`, `ScheduleSE`, etc.)
 - Specialized forms (`Form8959`, `Form8960`, `QualifiedDividendsAndCapitalGainsWorksheet`)
 
 ### Key Patterns
@@ -61,8 +62,8 @@ this.calculations = {
 **Reactive State:** MobX observers provide automatic UI updates when calculations change. User inputs auto-save to localStorage with tax year-specific keys.
 
 **Tabbed UI Architecture:**
-- `TabbedUserInputs` - Main tabbed interface with 4 sections
-- `W2IncomeTab` - Dynamic W2 and option exercise entry with add/remove functionality  
+- `TabbedUserInputs` - Main tabbed interface with 5 sections
+- `WorkIncomeTab` - Combined W2, 1099, and option exercise entry with add/remove functionality  
 - `InvestmentIncomeTab` - Quarterly grid interface matching user's spreadsheet workflow
 - `DeductionsTab` - Simple deduction inputs with totals
 - `TaxesPaidTab` - Withholding summaries plus estimated tax payments

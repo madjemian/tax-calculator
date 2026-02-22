@@ -1,11 +1,11 @@
-import { Card, H3, FormGroup, Button, InputGroup } from '@blueprintjs/core'
+import { Card, H3, FormGroup, Button, InputGroup, Divider } from '@blueprintjs/core'
 import { Trash, Plus } from '@blueprintjs/icons'
 import { observer } from 'mobx-react-lite'
 import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
 import type { UserInputStore } from '../../stores/UserInputStore'
 
-const W2IncomeTab = observer((props: { store: UserInputStore }) => {
+const WorkIncomeTab = observer((props: { store: UserInputStore }) => {
   const { store } = props
   
   return (
@@ -62,6 +62,66 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
           />
         </div>
 
+        <Divider style={{ margin: '24px 0' }} />
+
+        <H3>1099 / Business Income</H3>
+        {store.businessIncome.map((business) => (
+          <Card key={business.id} style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'end', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
+                <FormGroup label={<strong>Name / Client</strong>} style={{ flex: '1', maxWidth: '120px' }}>
+                  <InputGroup 
+                    value={business.name} 
+                    onChange={(e) => store.updateBusinessIncome(business.id, { name: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Income</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={business.income} 
+                    changeFunction={(value) => store.updateBusinessIncome(business.id, { income: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Expenses</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={business.expenses} 
+                    changeFunction={(value) => store.updateBusinessIncome(business.id, { expenses: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Net Profit</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                   <div className="bp4-input-group">
+                        <NumericFormat 
+                            className="bp4-input"
+                            value={Math.round(business.income - business.expenses)} 
+                            displayType={'text'} 
+                            thousandSeparator={true} 
+                            prefix={'$'} 
+                            disabled={true}
+                        />
+                    </div>
+                </FormGroup>
+              </div>
+              <FormGroup label={<span style={{ visibility: 'hidden' }}>.</span>}>
+                <Button 
+                  intent="danger"
+                  icon={<Trash />}
+                  onClick={() => store.removeBusinessIncome(business.id)}
+                />
+              </FormGroup>
+            </div>
+          </Card>
+        ))}
+
+        <div style={{ marginBottom: '16px' }}>
+          <Button 
+            intent="success"
+            icon={<Plus />}
+            text="Add Business Income"
+            onClick={() => store.addBusinessIncome()}
+          />
+        </div>
+
+        <Divider style={{ margin: '24px 0' }} />
+
         <H3>Option Exercise Batches</H3>
 
         {store.optionExercises.map((option) => (
@@ -115,22 +175,36 @@ const W2IncomeTab = observer((props: { store: UserInputStore }) => {
         </div>
         
         <Card style={{ backgroundColor: '#f5f5f5' }}>
-          <FormGroup label={<strong>Total W2 Income</strong>} style={{ minWidth: '200px' }}>
-            <div className="bp4-input-group">
-                <NumericFormat 
-                    className="bp4-input"
-                    value={Math.round(store.totalW2Income)} 
-                    displayType={'text'} 
-                    thousandSeparator={true} 
-                    prefix={'$'} 
-                    style={{ fontSize: '1.2em', fontWeight: 'bold' }}
-                />
-            </div>
-          </FormGroup>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <FormGroup label={<strong>Total W2 Income</strong>} style={{ minWidth: '150px' }}>
+                <div className="bp4-input-group">
+                    <NumericFormat 
+                        className="bp4-input"
+                        value={Math.round(store.totalW2Income)} 
+                        displayType={'text'} 
+                        thousandSeparator={true} 
+                        prefix={'$'} 
+                        style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                    />
+                </div>
+            </FormGroup>
+            <FormGroup label={<strong>Total Business Profit</strong>} style={{ minWidth: '150px' }}>
+                <div className="bp4-input-group">
+                    <NumericFormat 
+                        className="bp4-input"
+                        value={Math.round(store.totalBusinessProfit)} 
+                        displayType={'text'} 
+                        thousandSeparator={true} 
+                        prefix={'$'} 
+                        style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                    />
+                </div>
+            </FormGroup>
+          </div>
         </Card>
       </div>
     </>
   )
 })
 
-export default W2IncomeTab
+export default WorkIncomeTab
