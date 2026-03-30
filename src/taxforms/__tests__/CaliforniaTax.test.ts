@@ -107,3 +107,86 @@ describe('CaliforniaTax', () => {
         expect(caTax.calculateFullCATax()).toBeCloseTo(208789.53, 2); 
     });
 });
+
+describe('CaliforniaTax - calculateActualCATax and getters', () => {
+    let store: UserInputStore;
+    let caTax: CaliforniaTax;
+
+    beforeEach(() => {
+        store = new UserInputStore();
+        store.w2Income = [];
+        caTax = new CaliforniaTax(store);
+    });
+
+    describe('calculateActualCATax', () => {
+        it('should return 0 when ratio is 0 (no CA days)', () => {
+            store.addW2Income('Test', 100000, 0, 0);
+            expect(caTax.calculateActualCATax()).toBe(0);
+        });
+
+        it('should equal full CA tax when ratio is 1 (all days in CA)', () => {
+            store.addW2Income('Test', 100000, 0, 365);
+            expect(caTax.calculateActualCATax()).toBeCloseTo(caTax.calculateFullCATax(), 5);
+        });
+
+        it('should be half of full CA tax when half the year in CA', () => {
+            store.addW2Income('Test', 100000, 0, 182);
+            const fullTax = caTax.calculateFullCATax();
+            const actualTax = caTax.calculateActualCATax();
+            const expectedRatio = (100000 * (182 / 365)) / 100000;
+            expect(actualTax).toBeCloseTo(fullTax * expectedRatio, 2);
+        });
+
+        it('should return 0 when there is no income', () => {
+            expect(caTax.calculateActualCATax()).toBe(0);
+        });
+    });
+
+    describe('fullTaxableIncome getter', () => {
+        it('should return the CA calculation base (W2 + business - deductions)', () => {
+            store.addW2Income('Test', 80000);
+            store.hsaContribution = 5000;
+            // totalCACalculationBase = 80000 + 0 - 5000 = 75000
+            expect(caTax.fullTaxableIncome).toBe(75000);
+        });
+
+        it('should return 0 when income is 0', () => {
+            expect(caTax.fullTaxableIncome).toBe(0);
+        });
+
+        it('should return 0 (not negative) when deductions exceed income', () => {
+            store.hsaContribution = 50000; // deductions > income
+            expect(caTax.fullTaxableIncome).toBe(0);
+        });
+    });
+
+    describe('caTaxableAmount getter', () => {
+        it('should return total CA taxable income', () => {
+            store.addW2Income('Test', 100000, 0, 365);
+            expect(caTax.caTaxableAmount).toBe(100000);
+        });
+
+        it('should return 0 when no CA income', () => {
+            store.addW2Income('Test', 100000, 0, 0);
+            expect(caTax.caTaxableAmount).toBe(0);
+        });
+    });
+
+    describe('caRatio getter', () => {
+        it('should return 1.0 when fully CA-sourced', () => {
+            store.addW2Income('Test', 100000, 0, 365);
+            expect(caTax.caRatio).toBe(1.0);
+        });
+
+        it('should return 0 when no CA income', () => {
+            store.addW2Income('Test', 100000, 0, 0);
+            expect(caTax.caRatio).toBe(0);
+        });
+
+        it('should return partial ratio for partial CA work', () => {
+            store.addW2Income('Test', 100000, 0, 182);
+            expect(caTax.caRatio).toBeGreaterThan(0);
+            expect(caTax.caRatio).toBeLessThan(1);
+        });
+    });
+});
