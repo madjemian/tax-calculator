@@ -6,6 +6,7 @@ import { Schedule2, type CalculationProvider } from './Schedule2'
 import { Schedule3, type CreditProvider } from './Schedule3'
 import { TaxForm } from './TaxForm'
 import { QualifiedDividendsAndCapitalGainsWorksheet, type QualifiedDividendsAndCapitalGainsProvider } from './QualifiedDividendsAndCapitalGainsWorksheet'
+import { Logger } from '../utils/Logger'
 
 // magic numbers for tax year 2026
 export const STANDARD_DEDUCTION = 32200
@@ -87,22 +88,22 @@ export class Form1040 extends TaxForm
 
   get tax(): number {
     // Total income
-    console.log('Total Income:', this.calculations.line9())
+    Logger.log('Total Income:', this.calculations.line9())
 
     // Qualified dividends and Capital Gains Tax Worksheet
-    console.log('Qualified Dividends and Capital Gains Tax Worksheet:', this.calculations.line16())
+    Logger.log('Qualified Dividends and Capital Gains Tax Worksheet:', this.calculations.line16())
 
     // TODO Schedule 2 line 3
-    console.log('Additional Taxes from Schedule 2:', this.calculations.line17())
+    Logger.log('Additional Taxes from Schedule 2:', this.calculations.line17())
 
     // // TODO schedule 3 line 8
-    console.log('Non-refundable credits from Schedule 3:', this.calculations.line20())
+    Logger.log('Non-refundable credits from Schedule 3:', this.calculations.line20())
 
     // Schedule 2 line 21 other taxes
-    console.log('Other Taxes from Schedule 2:', this.calculations.line23())
+    Logger.log('Other Taxes from Schedule 2:', this.calculations.line23())
 
     // total tax
-    console.log('Total Tax:', this.calculations.line24())
+    Logger.log('Total Tax:', this.calculations.line24())
 
     return Math.round(this.calculations.line24())
   }
