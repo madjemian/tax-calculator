@@ -194,17 +194,37 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
 
   return (
     <>
-      <div style={{ display: 'flex', gap: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <H3>W2 Income Quarterly Distribution</H3>
-          <Callout intent={w2Mismatch ? "warning" : "primary"} style={{ marginBottom: '16px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '0 20px', 
+        alignItems: 'start' 
+      }}>
+        {/* Row 1: Headers */}
+        <H3 style={{ gridRow: 1, margin: '0 0 16px 0' }}>W2 Income Quarterly Distribution</H3>
+        <H3 style={{ gridRow: 1, margin: '0 0 16px 0' }}>Business Profit Quarterly Distribution</H3>
+
+        {/* Row 2: Callouts */}
+        <div style={{ gridRow: 2 }}>
+          <Callout intent={w2Mismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
             Total W2 Income: <NumericFormat value={totalActualW2} displayType="text" thousandSeparator={true} prefix="$" />
             <br />
             Distributed: <NumericFormat value={totalQuarterlyW2} displayType="text" thousandSeparator={true} prefix="$" />
             {w2Mismatch && <strong> (Mismatch!)</strong>}
           </Callout>
+        </div>
+        <div style={{ gridRow: 2 }}>
+          <Callout intent={businessProfitMismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
+            Total Business Profit: <NumericFormat value={totalActualBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
+            <br />
+            Distributed: <NumericFormat value={totalQuarterlyBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
+            {businessProfitMismatch && <strong> (Mismatch!)</strong>}
+          </Callout>
+        </div>
 
-          <Card style={{ marginBottom: '16px' }}>
+        {/* Row 3: Cards */}
+        <div style={{ gridRow: 3 }}>
+          <Card style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
                 <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
                   <NumberInput value={store.w2IncomeQuarterly.q1} changeFunction={(v) => store.updateW2IncomeQuarterly('q1', v)} />
@@ -236,17 +256,8 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
             </div>
           </Card>
         </div>
-
-        <div style={{ flex: 1 }}>
-          <H3>Business Profit Quarterly Distribution</H3>
-          <Callout intent={businessProfitMismatch ? "warning" : "primary"} style={{ marginBottom: '16px' }}>
-            Total Business Profit: <NumericFormat value={totalActualBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
-            <br />
-            Distributed: <NumericFormat value={totalQuarterlyBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
-            {businessProfitMismatch && <strong> (Mismatch!)</strong>}
-          </Callout>
-
-          <Card style={{ marginBottom: '16px' }}>
+        <div style={{ gridRow: 3 }}>
+          <Card style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
                 <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
                   <NumberInput value={store.businessProfitQuarterly.q1} changeFunction={(v) => store.updateBusinessProfitQuarterly('q1', v)} />
@@ -278,19 +289,23 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
             </div>
           </Card>
         </div>
-      </div>
 
-      <div style={{ display: 'flex', gap: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <H3>Withholding Quarterly Distribution</H3>
-          <Callout intent={withholdingMismatch ? "warning" : "primary"} style={{ marginBottom: '16px' }}>
+        {/* Row 4: Withholding Header */}
+        <H3 style={{ gridRow: 4, margin: '8px 0 16px 0' }}>Withholding Quarterly Distribution</H3>
+        
+        {/* Row 5: Withholding Callout */}
+        <div style={{ gridRow: 5 }}>
+          <Callout intent={withholdingMismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
             Total Withholding: <NumericFormat value={totalActualWithholding} displayType="text" thousandSeparator={true} prefix="$" />
             <br />
             Distributed: <NumericFormat value={totalQuarterlyWithholding} displayType="text" thousandSeparator={true} prefix="$" />
             {withholdingMismatch && <strong> (Mismatch!)</strong>}
           </Callout>
+        </div>
 
-          <Card style={{ marginBottom: '16px' }}>
+        {/* Row 6: Withholding Card */}
+        <div style={{ gridRow: 6 }}>
+          <Card style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
                 <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
                   <NumberInput value={store.withholdingQuarterly.q1} changeFunction={(v) => store.updateWithholdingQuarterly('q1', v)} />
@@ -322,8 +337,8 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
             </div>
           </Card>
         </div>
-        <div style={{ flex: 1 }}></div>
       </div>
+
 
       <H3>Schedule AI (Annualized Income Installment)</H3>
       <Card style={{ marginBottom: '16px' }}>
