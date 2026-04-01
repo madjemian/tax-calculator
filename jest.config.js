@@ -1,6 +1,6 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: [
@@ -9,7 +9,14 @@ export default {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      useESM: true
+      useESM: true,
+      tsconfig: {
+        jsx: 'react-jsx',
+        verbatimModuleSyntax: false,
+        moduleResolution: 'node',
+        allowImportingTsExtensions: true,
+        esModuleInterop: true
+      }
     }]
   },
   collectCoverageFrom: [
