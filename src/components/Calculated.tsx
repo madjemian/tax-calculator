@@ -3,15 +3,16 @@ import { appStoreContext } from '../stores/stores'
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 import { NumericFormat } from 'react-number-format'
+import { Logger } from '../utils/Logger'
 
 
 const CalculatedValues = observer(() => {
   const appStore = useContext(appStoreContext)
 
-  console.log('Calculated total 1040 tax:', appStore.tax)
-  console.log('Calculated total payments:', appStore.payments)
-  console.log('Calculated refund:', appStore.refund)
-  console.log('Calculated amount owed:', appStore.owed)
+  Logger.log('Calculated total 1040 tax:', appStore.tax)
+  Logger.log('Calculated total payments:', appStore.payments)
+  Logger.log('Calculated refund:', appStore.refund)
+  Logger.log('Calculated amount owed:', appStore.owed)
   return (
     <div style={{ marginTop: '2em', padding: '16px' }}>
       <H3>Federal Tax</H3>

@@ -1,3 +1,5 @@
+// ignore no-explicit-any for this file since we need to handle unknown backup formats
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UserInputData } from '../stores/UserInputStore'
 
 export interface BackupMetadata {

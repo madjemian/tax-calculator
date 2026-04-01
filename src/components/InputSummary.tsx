@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { useContext, useState } from 'react'
 import { userInputStoreContext } from '../stores/stores'
 import { NumericFormat } from 'react-number-format'
+import { Logger } from '../utils/Logger'
 
 const InputSummary = observer(() => {
   const userInputStore = useContext(userInputStoreContext)
@@ -16,6 +17,7 @@ const InputSummary = observer(() => {
       setTimeout(() => setMessage(null), 3000)
     } catch (error) {
       setMessage({ text: 'Failed to export backup', isError: true })
+      Logger.error('Error exporting backup:', error)
       setTimeout(() => setMessage(null), 3000)
     }
   }
@@ -37,6 +39,7 @@ const InputSummary = observer(() => {
       setTimeout(() => setMessage(null), result.success ? 3000 : 5000)
     } catch (error) {
       setMessage({ text: 'Unexpected error during import', isError: true })
+      Logger.error('Error importing backup:', error)
       setTimeout(() => setMessage(null), 5000)
     } finally {
       setIsImporting(false)
