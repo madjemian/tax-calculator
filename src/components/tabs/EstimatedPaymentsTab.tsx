@@ -1,9 +1,9 @@
-import { Card, H3, HTMLTable, FormGroup, Callout, RadioGroup, Radio, Button, Collapse } from '@blueprintjs/core'
+import { Card, H3, HTMLTable, FormGroup, RadioGroup, Radio, Button, Collapse } from '@blueprintjs/core'
 import { observer } from 'mobx-react-lite'
-import NumberInput from '../NumberInput'
 import { NumericFormat } from 'react-number-format'
 import { UserInputStore } from '../../stores/UserInputStore'
 import { calculateScheduleAI, INSTALLMENT_RATIOS } from '../../taxforms/ScheduleAI'
+import { QuarterlyDistributionCard } from '../estimated-payments/QuarterlyDistributionCard'
 import { useState } from 'react'
 
 // PERIODS and INSTALLMENT_RATIOS are imported from ScheduleAI
@@ -12,37 +12,6 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
   const { store } = props
   const [targetPercentage, setTargetPercentage] = useState<number>(0.9)
   const [showDetails, setShowDetails] = useState(false)
-
-  // Calculate total W2 entered in the quarterly fields
-  const totalQuarterlyW2 = 
-    store.w2IncomeQuarterly.q1 + 
-    store.w2IncomeQuarterly.q2 + 
-    store.w2IncomeQuarterly.q3 + 
-    store.w2IncomeQuarterly.q4
-
-  const totalActualW2 = store.w2Income.reduce((sum, w) => sum + w.income, 0)
-  
-  const w2Mismatch = Math.abs(totalQuarterlyW2 - totalActualW2) > 1
-
-  // Calculate total Business Profit entered in the quarterly fields
-  const totalQuarterlyBusinessProfit = 
-    store.businessProfitQuarterly.q1 + 
-    store.businessProfitQuarterly.q2 + 
-    store.businessProfitQuarterly.q3 + 
-    store.businessProfitQuarterly.q4
-
-  const totalActualBusinessProfit = store.totalBusinessProfit
-  const businessProfitMismatch = Math.abs(totalQuarterlyBusinessProfit - totalActualBusinessProfit) > 1
-
-  // Calculate total Withholding entered in quarterly fields
-  const totalQuarterlyWithholding = 
-    store.withholdingQuarterly.q1 + 
-    store.withholdingQuarterly.q2 + 
-    store.withholdingQuarterly.q3 + 
-    store.withholdingQuarterly.q4
-  
-  const totalActualWithholding = store.totalWithholding
-  const withholdingMismatch = Math.abs(totalQuarterlyWithholding - totalActualWithholding) > 1
 
   // Perform Schedule AI Calculations using external utility function
   const calculations = calculateScheduleAI(store, targetPercentage)
@@ -61,139 +30,38 @@ const EstimatedPaymentsTab = observer((props: { store: UserInputStore }) => {
         <H3 style={{ gridRow: 1, margin: '0 0 16px 0' }}>W2 Income Quarterly Distribution</H3>
         <H3 style={{ gridRow: 1, margin: '0 0 16px 0' }}>Business Profit Quarterly Distribution</H3>
 
-        {/* Row 2: Callouts */}
-        <div style={{ gridRow: 2 }}>
-          <Callout intent={w2Mismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
-            Total W2 Income: <NumericFormat value={totalActualW2} displayType="text" thousandSeparator={true} prefix="$" />
-            <br />
-            Distributed: <NumericFormat value={totalQuarterlyW2} displayType="text" thousandSeparator={true} prefix="$" />
-            {w2Mismatch && <strong> (Mismatch!)</strong>}
-          </Callout>
-        </div>
-        <div style={{ gridRow: 2 }}>
-          <Callout intent={businessProfitMismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
-            Total Business Profit: <NumericFormat value={totalActualBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
-            <br />
-            Distributed: <NumericFormat value={totalQuarterlyBusinessProfit} displayType="text" thousandSeparator={true} prefix="$" />
-            {businessProfitMismatch && <strong> (Mismatch!)</strong>}
-          </Callout>
-        </div>
+        {/* W2 Income Distribution */}
+        <QuarterlyDistributionCard
+          label="W2 Income"
+          totalAmount={store.w2Income.reduce((sum, w) => sum + w.income, 0)}
+          values={store.w2IncomeQuarterly}
+          onValueChange={(quarter, v) => store.updateW2IncomeQuarterly(quarter, v)}
+          gridRowCallout={2}
+          gridRowCard={3}
+        />
 
-        {/* Row 3: Cards */}
-        <div style={{ gridRow: 3 }}>
-          <Card style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
-                <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.w2IncomeQuarterly.q1} changeFunction={(v) => store.updateW2IncomeQuarterly('q1', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q2</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.w2IncomeQuarterly.q2} changeFunction={(v) => store.updateW2IncomeQuarterly('q2', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q3</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.w2IncomeQuarterly.q3} changeFunction={(v) => store.updateW2IncomeQuarterly('q3', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q4</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.w2IncomeQuarterly.q4} changeFunction={(v) => store.updateW2IncomeQuarterly('q4', v)} />
-                </FormGroup>
-            </div>
-            <div style={{ marginTop: '10px' }}>
-                <button 
-                    type="button" 
-                    className="bp4-button" 
-                    onClick={() => {
-                        const quarter = totalActualW2 / 4
-                        store.updateW2IncomeQuarterly('q1', quarter)
-                        store.updateW2IncomeQuarterly('q2', quarter)
-                        store.updateW2IncomeQuarterly('q3', quarter)
-                        store.updateW2IncomeQuarterly('q4', quarter)
-                    }}
-                >
-                    Distribute Evenly
-                </button>
-            </div>
-          </Card>
-        </div>
-        <div style={{ gridRow: 3 }}>
-          <Card style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
-                <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.businessProfitQuarterly.q1} changeFunction={(v) => store.updateBusinessProfitQuarterly('q1', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q2</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.businessProfitQuarterly.q2} changeFunction={(v) => store.updateBusinessProfitQuarterly('q2', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q3</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.businessProfitQuarterly.q3} changeFunction={(v) => store.updateBusinessProfitQuarterly('q3', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q4</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.businessProfitQuarterly.q4} changeFunction={(v) => store.updateBusinessProfitQuarterly('q4', v)} />
-                </FormGroup>
-            </div>
-            <div style={{ marginTop: '10px' }}>
-                <button 
-                    type="button" 
-                    className="bp4-button" 
-                    onClick={() => {
-                        const quarter = totalActualBusinessProfit / 4
-                        store.updateBusinessProfitQuarterly('q1', quarter)
-                        store.updateBusinessProfitQuarterly('q2', quarter)
-                        store.updateBusinessProfitQuarterly('q3', quarter)
-                        store.updateBusinessProfitQuarterly('q4', quarter)
-                    }}
-                >
-                    Distribute Evenly
-                </button>
-            </div>
-          </Card>
-        </div>
+        {/* Business Profit Distribution */}
+        <QuarterlyDistributionCard
+          label="Business Profit"
+          totalAmount={store.totalBusinessProfit}
+          values={store.businessProfitQuarterly}
+          onValueChange={(quarter, v) => store.updateBusinessProfitQuarterly(quarter, v)}
+          gridRowCallout={2}
+          gridRowCard={3}
+        />
 
         {/* Row 4: Withholding Header */}
         <H3 style={{ gridRow: 4, margin: '8px 0 16px 0' }}>Withholding Quarterly Distribution</H3>
-        
-        {/* Row 5: Withholding Callout */}
-        <div style={{ gridRow: 5 }}>
-          <Callout intent={withholdingMismatch ? "warning" : "primary"} style={{ marginBottom: '16px', minHeight: '65px' }}>
-            Total Withholding: <NumericFormat value={totalActualWithholding} displayType="text" thousandSeparator={true} prefix="$" />
-            <br />
-            Distributed: <NumericFormat value={totalQuarterlyWithholding} displayType="text" thousandSeparator={true} prefix="$" />
-            {withholdingMismatch && <strong> (Mismatch!)</strong>}
-          </Callout>
-        </div>
 
-        {/* Row 6: Withholding Card */}
-        <div style={{ gridRow: 6 }}>
-          <Card style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
-                <FormGroup label={<strong>Q1</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.withholdingQuarterly.q1} changeFunction={(v) => store.updateWithholdingQuarterly('q1', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q2</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.withholdingQuarterly.q2} changeFunction={(v) => store.updateWithholdingQuarterly('q2', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q3</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.withholdingQuarterly.q3} changeFunction={(v) => store.updateWithholdingQuarterly('q3', v)} />
-                </FormGroup>
-                <FormGroup label={<strong>Q4</strong>} style={{ flex: '1' }}>
-                  <NumberInput value={store.withholdingQuarterly.q4} changeFunction={(v) => store.updateWithholdingQuarterly('q4', v)} />
-                </FormGroup>
-            </div>
-            <div style={{ marginTop: '10px' }}>
-                <button 
-                    type="button" 
-                    className="bp4-button" 
-                    onClick={() => {
-                        const quarter = totalActualWithholding / 4
-                        store.updateWithholdingQuarterly('q1', quarter)
-                        store.updateWithholdingQuarterly('q2', quarter)
-                        store.updateWithholdingQuarterly('q3', quarter)
-                        store.updateWithholdingQuarterly('q4', quarter)
-                    }}
-                >
-                    Distribute Evenly
-                </button>
-            </div>
-          </Card>
-        </div>
+        {/* Withholding Distribution */}
+        <QuarterlyDistributionCard
+          label="Withholding"
+          totalAmount={store.totalWithholding}
+          values={store.withholdingQuarterly}
+          onValueChange={(quarter, v) => store.updateWithholdingQuarterly(quarter, v)}
+          gridRowCallout={5}
+          gridRowCard={6}
+        />
       </div>
 
 
