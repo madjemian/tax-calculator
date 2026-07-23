@@ -49,6 +49,22 @@ export class AppStore {
     return Math.round(this.form1040.getModifiedAGI())
   }
 
+  get federalPreTaxDeductions(): number {
+    return Math.round(this.userInputStore.totalDeductions)
+  }
+
+  get federalDeduction(): number {
+    return Math.round(this.form1040.getDeduction())
+  }
+
+  get caPreTaxDeductions(): number {
+    return Math.round(this.userInputStore.totalCAPreTaxDeductions)
+  }
+
+  get caDeduction(): number {
+    return Math.round(this.userInputStore.totalCADeductions)
+  }
+
   get effectiveTaxRate(): number {
     // Effective tax rate = total tax / total income
     const rate = this.tax / this.totalIncome

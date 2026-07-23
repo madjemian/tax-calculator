@@ -135,6 +135,10 @@ export class Form1040 extends TaxForm
     return this.calculations.line11()
   }
 
+  getDeduction(): number {
+    return this.calculations.line12()
+  }
+
   getModifiedAGI(): number {
     return this.getAgi() + this.store.taxFreeInterest
   }

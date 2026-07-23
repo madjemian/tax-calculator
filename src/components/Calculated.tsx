@@ -39,6 +39,14 @@ const CalculatedValues = observer(() => {
         </div>
 
         <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>Federal Deductions Breakdown</strong>
+          <div style={{ fontSize: '0.9em', color: '#555', marginTop: '4px' }}>
+            <div>Pre-Tax Payroll (401k, 403b, HSA): <NumericFormat value={appStore.federalPreTaxDeductions} displayType={'text'} thousandSeparator={true} prefix={'$'} /></div>
+            <div>Federal Std/Itemized Deduction: <NumericFormat value={appStore.federalDeduction} displayType={'text'} thousandSeparator={true} prefix={'$'} /></div>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
           <strong>Total Tax</strong>
           <div>
             <NumericFormat value={appStore.tax} displayType={'text'} thousandSeparator={true} prefix={'$'} />
@@ -110,6 +118,14 @@ const CalculatedValues = observer(() => {
           <strong>CA Taxable Income (Full)</strong>
           <div>
             <NumericFormat value={appStore.caTaxableIncome} displayType={'text'} thousandSeparator={true} prefix={'$'} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+          <strong>CA Deductions Breakdown</strong>
+          <div style={{ fontSize: '0.9em', color: '#555', marginTop: '4px' }}>
+            <div>Pre-Tax Payroll (401k, 403b - HSA non-deductible): <NumericFormat value={appStore.caPreTaxDeductions} displayType={'text'} thousandSeparator={true} prefix={'$'} /></div>
+            <div>CA Std/Itemized Deduction: <NumericFormat value={appStore.caDeduction} displayType={'text'} thousandSeparator={true} prefix={'$'} /></div>
           </div>
         </div>
 
