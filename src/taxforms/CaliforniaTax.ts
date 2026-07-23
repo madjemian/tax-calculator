@@ -1,6 +1,8 @@
 import type { UserInputStore } from '../stores/UserInputStore'
 
-// California tax brackets for tax year 2025 (married filing jointly)
+// California standard deduction for tax year 2026 (married filing jointly)
+export const CA_STANDARD_DEDUCTION = 11400
+
 export const CA_TAX_BRACKETS = [
   { min: 0, max: 21512, rate: 0.01, offset: 0 },
   { min: 21512, max: 50998, rate: 0.02, offset: 215.12 },
@@ -20,7 +22,7 @@ export class CaliforniaTax {
     this.store = store
   }
 
-  // Calculate CA tax on the full taxable income (W2 + options - deductions)
+  // Calculate CA tax on the full taxable income (worldwide taxable income)
   calculateFullCATax(): number {
     const taxableIncome = Math.max(this.store.totalCACalculationBase, 0)
     return this.calculateTaxFromBrackets(taxableIncome)

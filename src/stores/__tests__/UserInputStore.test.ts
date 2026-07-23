@@ -414,11 +414,11 @@ describe('UserInputStore', () => {
       expect(store.totalCATaxableOptionIncome).toBe(0);
     });
 
-    it('totalCATaxableIncome includes W2, options, and business profit', () => {
+    it('totalCATaxableIncome includes W2 and options (business profit is excluded)', () => {
       store.addW2Income('Job', 100000, 0, 365); // 100% CA
       store.addOptionExercise('2026-01-01', 50000, 0, 100); // 100% CA
-      store.addBusinessIncome('Self', 20000, 5000); // profit = 15000
-      expect(store.totalCATaxableIncome).toBe(100000 + 50000 + 15000);
+      store.addBusinessIncome('Self', 20000, 5000); // profit = 15000 (not CA taxable)
+      expect(store.totalCATaxableIncome).toBe(100000 + 50000);
     });
 
     it('caTaxableRatio is 1.0 when all income is earned in CA', () => {
@@ -437,12 +437,24 @@ describe('UserInputStore', () => {
       expect(ratio).toBeLessThan(1);
     });
 
-    it('totalCACalculationBase is W2 + business profit minus deductions', () => {
+    it('totalCACalculationBase includes W2, business, options, and investment income minus CA deductions', () => {
       store.addW2Income('Job', 100000);
       store.addBusinessIncome('Self', 20000, 5000); // profit = 15000
-      store.hsaContribution = 3000;
-      store._401kContribution = 5000;
-      expect(store.totalCACalculationBase).toBe(100000 + 15000 - 8000);
+      store.updateInvestmentIncome('taxableInterest', 'q1', 2000);
+      store.hsaContribution = 3000; // Not deductible for CA
+      store._401kContribution = 5000; // Deductible pre-tax for CA
+      // Net W2 (100k - 5k 401k) + 15k profit + 2k interest = 112000 CA Worldwide AGI
+      // Minus CA Standard Deduction 11400 = 100600
+      expect(store.totalCACalculationBase).toBe(100600);
+    });
+
+    it('caTaxableRatio is CA taxable income divided by full calculation base', () => {
+      store.addW2Income('Job', 100000, 0, 182.5); // ~50000 CA taxable W2
+      store.addBusinessIncome('Self', 50000, 0); // 50000 business (not CA taxable)
+      // totalCACalculationBase = 150000
+      // totalCATaxableIncome = 50000
+      // caTaxableRatio = 50000 / 150000 = 1/3
+      expect(store.caTaxableRatio).toBeCloseTo(1 / 3, 4);
     });
   });
 

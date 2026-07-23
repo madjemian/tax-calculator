@@ -197,7 +197,7 @@ describe('AppStore', () => {
 
     it('should return caTaxableIncome based on full calculation base', () => {
       inputStore.addW2Income('Job', 100000, 0, 365);
-      expect(appStore.caTaxableIncome).toBe(100000);
+      expect(appStore.caTaxableIncome).toBe(100000 - 11400);
     });
 
     it('should return caTaxableAmount as CA portion of income', () => {

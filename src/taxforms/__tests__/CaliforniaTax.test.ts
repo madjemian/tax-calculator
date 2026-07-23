@@ -15,7 +15,7 @@ describe('CaliforniaTax', () => {
     const setIncome = (amount: number) => {
         // Reset income
         store.w2Income = [];
-        store.addW2Income('Test Income', amount);
+        store.addW2Income('Test Income', amount + 11400);
     };
 
     it('should calculate 0 tax for 0 income', () => {
@@ -143,11 +143,11 @@ describe('CaliforniaTax - calculateActualCATax and getters', () => {
     });
 
     describe('fullTaxableIncome getter', () => {
-        it('should return the CA calculation base (W2 + business - deductions)', () => {
+        it('should return the CA calculation base (W2 - CA deduction; HSA is not deductible in CA)', () => {
             store.addW2Income('Test', 80000);
             store.hsaContribution = 5000;
-            // totalCACalculationBase = 80000 + 0 - 5000 = 75000
-            expect(caTax.fullTaxableIncome).toBe(75000);
+            // totalCACalculationBase = 80000 - 11400 (CA standard deduction) = 68600
+            expect(caTax.fullTaxableIncome).toBe(68600);
         });
 
         it('should return 0 when income is 0', () => {

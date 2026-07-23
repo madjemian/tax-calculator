@@ -98,7 +98,9 @@ State is reactively saved on change via a MobX `autorun` block. If parsing from 
 | $512,450 | $768,700 | 35% | $117,144 |
 | $768,700 | &infin; | 37% | $208,606.50 |
 
-### California Tax Brackets (`src/taxforms/CaliforniaTax.ts`)
+### California Constants & Tax Brackets (`src/taxforms/CaliforniaTax.ts`)
+- `CA_STANDARD_DEDUCTION` = $11,400 (Married Filing Jointly)
+
 | Min Income | Max Income | Tax Rate | Offset |
 |---|---|---|---|
 | $0 | $21,512 | 1% | $0 |

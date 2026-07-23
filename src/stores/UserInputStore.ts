@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
 import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData, BusinessIncome } from '../types'
 import { BackupService } from '../utils/BackupService'
+import { CA_STANDARD_DEDUCTION } from '../taxforms/CaliforniaTax'
 
 export type UserInputData = {
   w2Income: W2Income[]
@@ -317,12 +318,43 @@ export class UserInputStore implements UserInputData {
     )
   }
 
+  // California pre-tax deductions (401k and 403b are allowed; HSA is NOT deductible in CA)
+  get totalCAPreTaxDeductions(): number {
+    return this._401kContribution + this._403bContribution
+  }
+
+  // California standard deduction or itemized deductions (property taxes without federal SALT cap)
+  get totalCADeductions(): number {
+    return Math.max(this.propertyTaxes, CA_STANDARD_DEDUCTION)
+  }
+
+  // Worldwide AGI for California tax purposes
+  get totalCAWorldwideAGI(): number {
+    const netW2 = Math.max(this.totalW2Income - this.totalCAPreTaxDeductions, 0)
+    return (
+      netW2 +
+      this.totalBusinessProfit +
+      this.taxableInterest +
+      this.totalDividends +
+      this.longTermCapitalGains +
+      this.shortTermCapitalGains
+    )
+  }
+
   // California tax calculations
   get totalCATaxableW2Income(): number {
+    const totalW2 = this.w2Income.reduce((sum, w2) => sum + w2.income, 0)
+    if (totalW2 === 0) return 0
+
+    // Net W2 after CA pre-tax deductions (401k/403b)
+    const netW2Total = Math.max(totalW2 - this.totalCAPreTaxDeductions, 0)
+
     return this.w2Income.reduce((sum, w2) => {
       const daysInCA = w2.daysInCA ?? 0
       const caPercentage = daysInCA / 365
-      return sum + (w2.income * caPercentage)
+      const w2Share = w2.income / totalW2
+      const netW2Entry = netW2Total * w2Share
+      return sum + (netW2Entry * caPercentage)
     }, 0)
   }
 
@@ -333,20 +365,21 @@ export class UserInputStore implements UserInputData {
     }, 0)
   }
 
+  // CA Source AGI
   get totalCATaxableIncome(): number {
-    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome + this.totalBusinessProfit
+    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome
   }
 
-  // Total income subject to CA tax calculation (W2 + business + options - deductions)
+  // Total taxable income base subject to CA tax bracket calculation (Worldwide AGI - CA Deductions)
   get totalCACalculationBase(): number {
-    return this.totalW2Income + this.totalBusinessProfit - this.totalDeductions
+    return Math.max(this.totalCAWorldwideAGI - this.totalCADeductions, 0)
   }
 
-  // Weighted ratio of CA taxable portion
+  // CA Apportionment Ratio (CA Source AGI / Worldwide AGI)
   get caTaxableRatio(): number {
-    const totalWorkIncome = this.totalW2Income + this.totalBusinessProfit
-    if (totalWorkIncome === 0) return 0
-    return this.totalCATaxableIncome / totalWorkIncome
+    const worldwideAGI = this.totalCAWorldwideAGI
+    if (worldwideAGI <= 0) return 0
+    return Math.min(this.totalCATaxableIncome / worldwideAGI, 1.0)
   }
 
   exportBackup() {
