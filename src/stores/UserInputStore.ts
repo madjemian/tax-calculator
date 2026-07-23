@@ -328,7 +328,7 @@ export class UserInputStore implements UserInputData {
     return Math.max(this.propertyTaxes, CA_STANDARD_DEDUCTION)
   }
 
-  // Worldwide AGI for California tax purposes
+  // Worldwide AGI for California tax purposes (includes out-of-state tax-free interest as CA taxable)
   get totalCAWorldwideAGI(): number {
     const netW2 = Math.max(this.totalW2Income - this.totalCAPreTaxDeductions, 0)
     return (
@@ -337,7 +337,8 @@ export class UserInputStore implements UserInputData {
       this.taxableInterest +
       this.totalDividends +
       this.longTermCapitalGains +
-      this.shortTermCapitalGains
+      this.shortTermCapitalGains +
+      this.taxFreeInterest
     )
   }
 
