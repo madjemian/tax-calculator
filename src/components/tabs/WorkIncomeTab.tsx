@@ -173,9 +173,70 @@ const WorkIncomeTab = observer((props: { store: UserInputStore }) => {
             onClick={() => store.addOptionExercise()}
           />
         </div>
+
+        <Divider style={{ margin: '24px 0' }} />
+
+        <H3>Roth Conversions / 1099-R</H3>
+
+        {store.rothConversions.map((conversion) => (
+          <Card key={conversion.id} style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'end', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'end' }}>
+                <FormGroup label={<strong>Payer / Account</strong>} style={{ flex: '1', maxWidth: '140px' }}>
+                  <InputGroup 
+                    value={conversion.name} 
+                    onChange={(e) => store.updateRothConversion(conversion.id, { name: e.target.value })}
+                    placeholder="e.g. Fidelity 401k"
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Date</strong>} style={{ flex: '1', maxWidth: '140px' }}>
+                  <InputGroup 
+                    type='date'
+                    value={conversion.date} 
+                    onChange={(e) => store.updateRothConversion(conversion.id, { date: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Amount</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={conversion.amount} 
+                    changeFunction={(value) => store.updateRothConversion(conversion.id, { amount: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>Withholding</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={conversion.withholding} 
+                    changeFunction={(value) => store.updateRothConversion(conversion.id, { withholding: value })} 
+                  />
+                </FormGroup>
+                <FormGroup label={<strong>CA Taxable %</strong>} style={{ flex: '1', maxWidth: '100px' }}>
+                  <NumberInput 
+                    value={conversion.caTaxablePercent ?? 0} 
+                    changeFunction={(value) => store.updateRothConversion(conversion.id, { caTaxablePercent: value })} 
+                  />
+                </FormGroup>
+              </div>
+              <FormGroup label={<span style={{ visibility: 'hidden' }}>.</span>}>
+                <Button 
+                  intent="danger"
+                  icon={<Trash />}
+                  onClick={() => store.removeRothConversion(conversion.id)}
+                />
+              </FormGroup>
+            </div>
+          </Card>
+        ))}
+
+        <div style={{ marginBottom: '16px' }}>
+          <Button 
+            intent="success"
+            icon={<Plus />}
+            text="Add Roth Conversion"
+            onClick={() => store.addRothConversion()}
+          />
+        </div>
         
         <Card style={{ backgroundColor: '#f5f5f5' }}>
-          <div style={{ display: 'flex', gap: '24px' }}>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
             <FormGroup label={<strong>Total W2 Income</strong>} style={{ minWidth: '150px' }}>
                 <div className="bp4-input-group">
                     <NumericFormat 
@@ -193,6 +254,18 @@ const WorkIncomeTab = observer((props: { store: UserInputStore }) => {
                     <NumericFormat 
                         className="bp4-input"
                         value={Math.round(store.totalBusinessProfit)} 
+                        displayType={'text'} 
+                        thousandSeparator={true} 
+                        prefix={'$'} 
+                        style={{ fontSize: '1.2em', fontWeight: 'bold' }}
+                    />
+                </div>
+            </FormGroup>
+            <FormGroup label={<strong>Total Roth Conversions</strong>} style={{ minWidth: '150px' }}>
+                <div className="bp4-input-group">
+                    <NumericFormat 
+                        className="bp4-input"
+                        value={Math.round(store.totalRothConversions)} 
                         displayType={'text'} 
                         thousandSeparator={true} 
                         prefix={'$'} 

@@ -49,6 +49,38 @@ describe('Form1040', () => {
     });
   });
 
+  describe('tax calculation with Roth conversions (1099-R)', () => {
+    it('should calculate correct ordinary income tax on Roth conversion', () => {
+      store.addRothConversion('401k Rollover', 100000);
+      // Taxable income = 100000 - 32200 = 67800
+      // Tax = 2480 + (67800 - 24800) * 0.12 = 7640
+      expect(form.tax).toBe(7640);
+      expect(form.getAgi()).toBe(100000);
+    });
+
+    it('should combine W2 income and Roth conversion', () => {
+      store.addW2Income('Job', 50000);
+      store.addRothConversion('401k Conversion', 50000);
+      // Total income = 100000, Taxable = 100000 - 32200 = 67800
+      // Tax = 7640
+      expect(form.tax).toBe(7640);
+      expect(form.getAgi()).toBe(100000);
+    });
+
+    it('should not increase Medicare wages or self-employment income', () => {
+      store.addRothConversion('401k Conversion', 100000);
+      expect(form.getMedicareWages()).toBe(0);
+      expect(form.getSelfEmploymentIncome()).toBe(0);
+      expect(form.selfEmploymentTax).toBe(0);
+    });
+
+    it('should include Roth conversion in MAGI for Form 8960 threshold', () => {
+      store.addRothConversion('401k Conversion', 300000);
+      // MAGI = 300000 > 250000 NIIT threshold
+      expect(form.getModifiedAGI()).toBe(300000);
+    });
+  });
+
   describe('refund and owed', () => {
     it('should calculate refund when withholding exceeds tax', () => {
       store.addW2Income('Test', 100000, 10000);
@@ -84,6 +116,11 @@ describe('Form1040', () => {
     it('should include option exercise withholding in payments', () => {
       store.addOptionExercise('2026-01-01', 50000, 15000);
       expect(form.payments).toBe(15000);
+    });
+
+    it('should include Roth conversion withholding in payments', () => {
+      store.addRothConversion('Fidelity', 40000, '2026-06-01', 8000);
+      expect(form.payments).toBe(8000);
     });
   });
 

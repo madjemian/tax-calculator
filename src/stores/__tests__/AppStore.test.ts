@@ -7,6 +7,7 @@ const makeEmptyStore = (): UserInputStore => {
     w2Income: [],
     businessIncome: [],
     optionExercises: [],
+    rothConversions: [],
     investmentIncome: {
       taxFreeInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
       taxableInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
@@ -49,6 +50,13 @@ describe('AppStore', () => {
       inputStore.addW2Income('Test', 100000);
       // Taxable income = 100000 - 32200 = 67800
       // Tax = 2480 + (67800 - 24800) * 0.12 = 7640
+      expect(appStore.tax).toBe(7640);
+    });
+
+    it('should calculate federal income tax for Roth conversion income', () => {
+      inputStore.addRothConversion('Fidelity', 100000);
+      // Taxable income = 100000 - 32200 = 67800
+      // Tax = 7640
       expect(appStore.tax).toBe(7640);
     });
 

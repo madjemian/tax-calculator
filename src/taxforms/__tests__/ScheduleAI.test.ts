@@ -89,4 +89,21 @@ describe('calculateScheduleAI', () => {
     expect(results100[3].cumulativeTarget).toBeCloseTo(results90[3].cumulativeTarget * (1.0 / 0.9), 0)
     expect(results110[3].cumulativeTarget).toBeCloseTo(results90[3].cumulativeTarget * (1.1 / 0.9), 0)
   })
+
+  it('should recognize Roth conversion in the quarter it occurs', () => {
+    store.addRothConversion('Fidelity Rollover', 60000, '2026-05-15')
+    const results = calculateScheduleAI(store, 0.9)
+
+    // Period 1 (Jan-Mar): 0 conversion
+    expect(results[0].periodRothConversions).toBe(0)
+    expect(results[0].requiredPayment).toBe(0)
+
+    // Period 2 (Jan-May): includes May conversion
+    expect(results[1].periodRothConversions).toBe(60000)
+    expect(results[1].requiredPayment).toBeGreaterThan(0)
+
+    // Period 3 & 4 also include the conversion
+    expect(results[2].periodRothConversions).toBe(60000)
+    expect(results[3].periodRothConversions).toBe(60000)
+  })
 })

@@ -21,6 +21,15 @@ export type OptionExercise = {
   caTaxablePercent?: number // Percentage of option exercise that is CA taxable (0-100)
 }
 
+export type RothConversion = {
+  id: string
+  name: string
+  date: string
+  amount: number
+  withholding: number
+  caTaxablePercent?: number // Percentage of conversion that is CA taxable (0-100, defaults to 0% for non-residents)
+}
+
 export type QuarterlyData = {
   q1: number
   q2: number

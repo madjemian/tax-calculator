@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import { v4 as uuidv4 } from 'uuid'
-import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData, BusinessIncome } from '../types'
+import type { W2Income, OptionExercise, InvestmentIncome, QuarterlyData, BusinessIncome, RothConversion } from '../types'
 import { BackupService } from '../utils/BackupService'
 import { CA_STANDARD_DEDUCTION } from '../taxforms/CaliforniaTax'
 
@@ -8,6 +8,7 @@ export type UserInputData = {
   w2Income: W2Income[]
   businessIncome: BusinessIncome[]
   optionExercises: OptionExercise[]
+  rothConversions: RothConversion[]
   w2IncomeQuarterly?: QuarterlyData
   businessProfitQuarterly?: QuarterlyData
   withholdingQuarterly?: QuarterlyData
@@ -34,6 +35,7 @@ export class UserInputStore implements UserInputData {
   w2Income: W2Income[] = []
   businessIncome: BusinessIncome[] = []
   optionExercises: OptionExercise[] = []
+  rothConversions: RothConversion[] = []
   
   // W2 income quarterly distribution (for Schedule AI)
   w2IncomeQuarterly: QuarterlyData = { q1: 0, q2: 0, q3: 0, q4: 0 }
@@ -87,6 +89,7 @@ export class UserInputStore implements UserInputData {
       w2Income: this.w2Income,
       businessIncome: this.businessIncome,
       optionExercises: this.optionExercises,
+      rothConversions: this.rothConversions,
       w2IncomeQuarterly: this.w2IncomeQuarterly,
       businessProfitQuarterly: this.businessProfitQuarterly,
       withholdingQuarterly: this.withholdingQuarterly,
@@ -111,6 +114,7 @@ export class UserInputStore implements UserInputData {
       this.w2Income = data.w2Income || []
       this.businessIncome = data.businessIncome || []
       this.optionExercises = data.optionExercises || []
+      this.rothConversions = data.rothConversions || []
       this.w2IncomeQuarterly = data.w2IncomeQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
       this.businessProfitQuarterly = data.businessProfitQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
       this.withholdingQuarterly = data.withholdingQuarterly || { q1: 0, q2: 0, q3: 0, q4: 0 }
@@ -184,6 +188,22 @@ export class UserInputStore implements UserInputData {
 
   removeOptionExercise(id: string) {
     this.optionExercises = this.optionExercises.filter(o => o.id !== id)
+  }
+
+  addRothConversion(name: string = 'Roth Conversion', amount: number = 0, date: string = new Date().toISOString().split('T')[0], withholding: number = 0, caTaxablePercent: number = 0) {
+    const id = uuidv4()
+    this.rothConversions.push({ id, name, date, amount, withholding, caTaxablePercent })
+  }
+
+  updateRothConversion(id: string, updates: Partial<Omit<RothConversion, 'id'>>) {
+    const conversion = this.rothConversions.find(r => r.id === id)
+    if (conversion) {
+      Object.assign(conversion, updates)
+    }
+  }
+
+  removeRothConversion(id: string) {
+    this.rothConversions = this.rothConversions.filter(r => r.id !== id)
   }
 
   updateW2IncomeQuarterly(quarter: keyof QuarterlyData, value: number) {
@@ -294,8 +314,16 @@ export class UserInputStore implements UserInputData {
     return this.optionExercises.reduce((sum, option) => sum + option.withholding, 0)
   }
 
+  get totalRothConversions(): number {
+    return this.rothConversions.reduce((sum, r) => sum + r.amount, 0)
+  }
+
+  get totalRothConversionWithholding(): number {
+    return this.rothConversions.reduce((sum, r) => sum + r.withholding, 0)
+  }
+
   get totalWithholding(): number {
-    return this.totalW2Withholding + this.totalOptionWithholding
+    return this.totalW2Withholding + this.totalOptionWithholding + this.totalRothConversionWithholding
   }
 
   get totalEstimatedTaxPaid(): number {
@@ -310,6 +338,7 @@ export class UserInputStore implements UserInputData {
     return (
       this.totalW2Income +
       this.totalBusinessProfit +
+      this.totalRothConversions +
       this.taxableInterest +
       this.totalDividends +
       this.longTermCapitalGains +
@@ -334,6 +363,7 @@ export class UserInputStore implements UserInputData {
     return (
       netW2 +
       this.totalBusinessProfit +
+      this.totalRothConversions +
       this.taxableInterest +
       this.totalDividends +
       this.longTermCapitalGains +
@@ -366,9 +396,20 @@ export class UserInputStore implements UserInputData {
     }, 0)
   }
 
+  get totalCATaxableRothConversionIncome(): number {
+    return this.rothConversions.reduce((sum, conv) => {
+      const caPercent = (conv.caTaxablePercent ?? 0) / 100
+      return sum + (conv.amount * caPercent)
+    }, 0)
+  }
+
   // CA Source AGI
   get totalCATaxableIncome(): number {
-    return this.totalCATaxableW2Income + this.totalCATaxableOptionIncome
+    return (
+      this.totalCATaxableW2Income +
+      this.totalCATaxableOptionIncome +
+      this.totalCATaxableRothConversionIncome
+    )
   }
 
   // Total taxable income base subject to CA tax bracket calculation (Worldwide AGI - CA Deductions)

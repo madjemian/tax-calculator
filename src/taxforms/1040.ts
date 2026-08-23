@@ -60,10 +60,12 @@ export class Form1040 extends TaxForm
       line2b: () => this.store.taxableInterest,
       line3a: () => this.store.qualifiedDividends,
       line3b: () => this.store.totalDividends,
+      line4a: () => this.store.totalRothConversions, // IRA distributions
+      line4b: () => this.store.totalRothConversions, // Taxable amount (Roth conversions)
       line7: () => Math.max(this.scheduleD.line16, MAX_CAPITAL_LOSS_DEDUCTION), // From Schedule D
       line8: () => this.schedule1.additionalIncome, // From Schedule 1
       line10: () => this.schedule1.incomeAdjustments, // From Schedule 1
-      line9: () => this.calculations.line1z() + this.calculations.line2b() + this.calculations.line3b() + this.calculations.line7() + this.calculations.line8(), // Total income
+      line9: () => this.calculations.line1z() + this.calculations.line2b() + this.calculations.line3b() + this.calculations.line4b() + this.calculations.line7() + this.calculations.line8(), // Total income
       line11: () => this.calculations.line9() - this.calculations.line10(), // Adjusted Gross Income
       line12: () => this.scheduleA.deduction, // Deduction from Schedule A
       line13: () => 0, // qualified business income deduction, 8995,8995-A

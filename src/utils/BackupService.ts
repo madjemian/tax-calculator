@@ -95,6 +95,7 @@ export class BackupService {
       w2Income: [],
       businessIncome: [],
       optionExercises: [],
+      rothConversions: [],
       investmentIncome: {
         taxFreeInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
         taxableInterest: { q1: 0, q2: 0, q3: 0, q4: 0 },
@@ -149,6 +150,17 @@ export class BackupService {
       }
     } else if (backupData.data.optionExercises) {
       warnings.push('Option exercises data format invalid, using empty array')
+    }
+
+    if (Array.isArray(backupData.data.rothConversions)) {
+      normalizedData.rothConversions = backupData.data.rothConversions.filter((r: any) =>
+        r.id && typeof r.amount === 'number'
+      )
+      if (normalizedData.rothConversions.length !== backupData.data.rothConversions.length) {
+        warnings.push('Some Roth conversion entries were skipped due to invalid format')
+      }
+    } else if (backupData.data.rothConversions) {
+      warnings.push('Roth conversion data format invalid, using empty array')
     }
 
     // Handle investment income with defaults

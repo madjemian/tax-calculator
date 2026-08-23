@@ -16,6 +16,7 @@ export interface ScheduleAICalculationResult {
   periodBusinessProfit: number
   periodInvestment: number
   periodOptions: number
+  periodRothConversions: number
   totalPeriodIncome: number
   annualizationFactor: number
   annualizedGross: number
@@ -112,13 +113,26 @@ export function calculateScheduleAI(
       return true
     }).reduce((sum, opt) => sum + opt.amount, 0)
 
-    const totalPeriodIncome = periodW2 + periodBusinessProfit + periodInvestment + periodOptions
+    // Roth Conversions:
+    const periodRothConversions = (store.rothConversions || []).filter(conv => {
+      const parts = conv.date.split('-')
+      if (parts.length < 2) return false
+      const month = parseInt(parts[1], 10)
+      if (isNaN(month)) return false
+      if (i === 0) return month <= 3
+      if (i === 1) return month <= 5
+      if (i === 2) return month <= 8
+      return true
+    }).reduce((sum, conv) => sum + conv.amount, 0)
+
+    const totalPeriodIncome = periodW2 + periodBusinessProfit + periodInvestment + periodOptions + periodRothConversions
 
     // 2. Annualize
     const factor = period.factor
     const annualizedW2 = periodW2 * factor
     const annualizedBusinessProfit = periodBusinessProfit * factor
     const annualizedOptions = periodOptions * factor
+    const annualizedRothConversions = periodRothConversions * factor
     
     // Create Mock Store
     const mockStore = new UserInputStore()
@@ -142,6 +156,11 @@ export function calculateScheduleAI(
     mockStore.optionExercises = []
     if (annualizedOptions > 0) {
       mockStore.addOptionExercise('2026-12-31', annualizedOptions)
+    }
+
+    mockStore.rothConversions = []
+    if (annualizedRothConversions > 0) {
+      mockStore.addRothConversion('Annualized Conversion', annualizedRothConversions, '2026-12-31')
     }
 
     // Set Annualized Investment Income
@@ -174,6 +193,7 @@ export function calculateScheduleAI(
       periodBusinessProfit,
       periodInvestment,
       periodOptions,
+      periodRothConversions,
       totalPeriodIncome,
       annualizationFactor: factor,
       annualizedGross,

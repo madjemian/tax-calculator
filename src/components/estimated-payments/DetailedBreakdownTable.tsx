@@ -73,8 +73,21 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
               </td>
             ))}
           </tr>
+          <tr>
+            <td><strong>(5) Period Roth Conversions</strong></td>
+            {calculations.map((c, i) => (
+              <td key={i}>
+                <NumericFormat
+                  value={Math.round(c.periodRothConversions)}
+                  displayType="text"
+                  thousandSeparator={true}
+                  prefix="$"
+                />
+              </td>
+            ))}
+          </tr>
           <tr style={{ borderTop: '1px solid #ddd' }}>
-            <td><strong>(5) Total Period Income (1+2+3+4)</strong></td>
+            <td><strong>(6) Total Period Income (1+2+3+4+5)</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <strong>
@@ -89,13 +102,13 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(6) Annualization Factor</strong></td>
+            <td><strong>(7) Annualization Factor</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>x {c.annualizationFactor}</td>
             ))}
           </tr>
           <tr style={{ borderTop: '1px solid #ddd' }}>
-            <td><strong>(7) Annualized Gross Income (5 x 6)</strong></td>
+            <td><strong>(8) Annualized Gross Income (6 x 7)</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <NumericFormat
@@ -108,7 +121,7 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(8) Less: Annual Adjustments</strong></td>
+            <td><strong>(9) Less: Annual Adjustments</strong></td>
             {calculations.map((c, i) => (
               <td key={i} style={{ color: '#d32f2f' }}>
                 (
@@ -123,7 +136,7 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(9) Annualized AGI (7 - 8)</strong></td>
+            <td><strong>(10) Annualized AGI (8 - 9)</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <NumericFormat
@@ -136,7 +149,7 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(10) Calculated Tax on (9)</strong></td>
+            <td><strong>(11) Calculated Tax on (10)</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <NumericFormat
@@ -149,19 +162,19 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(11) Target Percentage</strong></td>
+            <td><strong>(12) Target Percentage</strong></td>
             <td colSpan={4} style={{ textAlign: 'center' }}>
               {Math.round(targetPercentage * 100)}%
             </td>
           </tr>
           <tr>
-            <td><strong>(12) Installment Ratio</strong></td>
+            <td><strong>(13) Installment Ratio</strong></td>
             {INSTALLMENT_RATIOS.map((r, i) => (
               <td key={i}>{r * 100}%</td>
             ))}
           </tr>
           <tr style={{ backgroundColor: '#fff9e6' }}>
-            <td><strong>(13) Cumulative Target (10 x 11 x 12)</strong></td>
+            <td><strong>(14) Cumulative Target (11 x 12 x 13)</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <strong>
@@ -176,7 +189,7 @@ export function DetailedBreakdownTable({ calculations, targetPercentage }: Detai
             ))}
           </tr>
           <tr>
-            <td><strong>(14) Withholding for Period</strong></td>
+            <td><strong>(15) Withholding for Period</strong></td>
             {calculations.map((c, i) => (
               <td key={i}>
                 <NumericFormat

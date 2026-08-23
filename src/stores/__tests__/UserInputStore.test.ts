@@ -14,6 +14,7 @@ const makeTestData = (overrides: Partial<UserInputData> = {}): UserInputData => 
   w2Income: [],
   businessIncome: [],
   optionExercises: [],
+  rothConversions: [],
   investmentIncome: makeEmptyInvestmentIncome(),
   hsaContribution: 0,
   _401kContribution: 0,
@@ -42,6 +43,7 @@ describe('UserInputStore', () => {
     it('should initialize with provided data', () => {
       const data = makeTestData({
         w2Income: [{ id: 'abc', name: 'Alice', income: 75000, withholding: 8000 }],
+        rothConversions: [{ id: 'rc1', name: '401k Conversion', amount: 20000, date: '2026-06-01', withholding: 4000, caTaxablePercent: 0 }],
         hsaContribution: 3000,
         _401kContribution: 10000,
         foreignTaxCredit: 250,
@@ -50,6 +52,8 @@ describe('UserInputStore', () => {
       const store = new UserInputStore(data);
       expect(store.w2Income.length).toBe(1);
       expect(store.w2Income[0].income).toBe(75000);
+      expect(store.rothConversions.length).toBe(1);
+      expect(store.rothConversions[0].amount).toBe(20000);
       expect(store.hsaContribution).toBe(3000);
       expect(store._401kContribution).toBe(10000);
       expect(store.foreignTaxCredit).toBe(250);
@@ -62,6 +66,7 @@ describe('UserInputStore', () => {
       expect(store.w2Income).toEqual([]);
       expect(store.businessIncome).toEqual([]);
       expect(store.optionExercises).toEqual([]);
+      expect(store.rothConversions).toEqual([]);
     });
   });
 
@@ -200,6 +205,53 @@ describe('UserInputStore', () => {
     });
   });
 
+  describe('Roth conversion management', () => {
+    let store: UserInputStore;
+
+    beforeEach(() => {
+      store = new UserInputStore(makeTestData());
+    });
+
+    it('should add a Roth conversion entry with default caTaxablePercent of 0', () => {
+      store.addRothConversion('Fidelity 401k', 50000, '2026-06-15', 10000);
+      expect(store.rothConversions.length).toBe(1);
+      expect(store.rothConversions[0].name).toBe('Fidelity 401k');
+      expect(store.rothConversions[0].amount).toBe(50000);
+      expect(store.rothConversions[0].date).toBe('2026-06-15');
+      expect(store.rothConversions[0].withholding).toBe(10000);
+      expect(store.rothConversions[0].caTaxablePercent).toBe(0);
+    });
+
+    it('should add a Roth conversion with custom caTaxablePercent', () => {
+      store.addRothConversion('Vanguard IRA', 30000, '2026-04-01', 6000, 50);
+      expect(store.rothConversions[0].caTaxablePercent).toBe(50);
+    });
+
+    it('should update a Roth conversion entry', () => {
+      store.addRothConversion('Fidelity 401k', 50000, '2026-06-15', 10000);
+      const id = store.rothConversions[0].id;
+      store.updateRothConversion(id, { amount: 60000, withholding: 12000 });
+      expect(store.rothConversions[0].amount).toBe(60000);
+      expect(store.rothConversions[0].withholding).toBe(12000);
+      expect(store.rothConversions[0].name).toBe('Fidelity 401k'); // unchanged
+    });
+
+    it('should ignore update for non-existent Roth conversion id', () => {
+      store.addRothConversion('Fidelity 401k', 50000);
+      store.updateRothConversion('bad-id', { amount: 99999 });
+      expect(store.rothConversions[0].amount).toBe(50000);
+    });
+
+    it('should remove a Roth conversion entry', () => {
+      store.addRothConversion('401k Conv 1', 30000);
+      store.addRothConversion('401k Conv 2', 20000);
+      const idToRemove = store.rothConversions[0].id;
+      store.removeRothConversion(idToRemove);
+      expect(store.rothConversions.length).toBe(1);
+      expect(store.rothConversions[0].name).toBe('401k Conv 2');
+    });
+  });
+
   describe('quarterly data updates', () => {
     let store: UserInputStore;
 
@@ -312,10 +364,23 @@ describe('UserInputStore', () => {
       expect(store.totalOptionWithholding).toBe(15000);
     });
 
-    it('totalWithholding combines W2 and option withholding', () => {
+    it('totalRothConversions sums amounts across Roth conversions', () => {
+      store.addRothConversion('Fidelity', 40000);
+      store.addRothConversion('Vanguard', 10000);
+      expect(store.totalRothConversions).toBe(50000);
+    });
+
+    it('totalRothConversionWithholding sums withholding across Roth conversions', () => {
+      store.addRothConversion('Fidelity', 40000, '2026-06-01', 8000);
+      store.addRothConversion('Vanguard', 10000, '2026-08-01', 2000);
+      expect(store.totalRothConversionWithholding).toBe(10000);
+    });
+
+    it('totalWithholding combines W2, option, and Roth conversion withholding', () => {
       store.addW2Income('Job', 100000, 12000);
       store.addOptionExercise('2026-01-01', 50000, 15000);
-      expect(store.totalWithholding).toBe(27000);
+      store.addRothConversion('Fidelity', 40000, '2026-06-01', 8000);
+      expect(store.totalWithholding).toBe(35000);
     });
 
     it('totalEstimatedTaxPaid sums all four quarterly payments', () => {
@@ -366,14 +431,15 @@ describe('UserInputStore', () => {
       expect(store.shortTermCapitalGains).toBe(2000);
     });
 
-    it('totalRealIncome sums all income sources', () => {
+    it('totalRealIncome sums all income sources including Roth conversions', () => {
       store.addW2Income('Job', 100000);
       store.addBusinessIncome('Self', 30000, 5000); // profit = 25000
+      store.addRothConversion('Fidelity', 40000);
       store.updateInvestmentIncome('taxableInterest', 'q1', 500);
       store.updateInvestmentIncome('qualifiedDividends', 'q1', 300);
       store.updateInvestmentIncome('longTermCapitalGains', 'q1', 2000);
       store.updateInvestmentIncome('taxFreeInterest', 'q1', 1000);
-      expect(store.totalRealIncome).toBe(100000 + 25000 + 500 + 300 + 2000 + 1000);
+      expect(store.totalRealIncome).toBe(100000 + 25000 + 40000 + 500 + 300 + 2000 + 1000);
     });
 
     it('totalTaxCredit equals the foreign tax credit', () => {
@@ -414,11 +480,22 @@ describe('UserInputStore', () => {
       expect(store.totalCATaxableOptionIncome).toBe(0);
     });
 
-    it('totalCATaxableIncome includes W2 and options (business profit is excluded)', () => {
+    it('totalCATaxableRothConversionIncome defaults to 0% for non-residents (e.g. FL)', () => {
+      store.addRothConversion('Fidelity', 50000);
+      expect(store.totalCATaxableRothConversionIncome).toBe(0);
+    });
+
+    it('totalCATaxableRothConversionIncome applies caTaxablePercent if specified', () => {
+      store.addRothConversion('Fidelity', 50000, '2026-06-01', 0, 100);
+      expect(store.totalCATaxableRothConversionIncome).toBe(50000);
+    });
+
+    it('totalCATaxableIncome includes W2, options, and CA-taxable Roth conversions', () => {
       store.addW2Income('Job', 100000, 0, 365); // 100% CA
       store.addOptionExercise('2026-01-01', 50000, 0, 100); // 100% CA
+      store.addRothConversion('FL Conversion', 40000, '2026-06-01', 0, 0); // 0% CA (living in FL)
       store.addBusinessIncome('Self', 20000, 5000); // profit = 15000 (not CA taxable)
-      expect(store.totalCATaxableIncome).toBe(100000 + 50000);
+      expect(store.totalCATaxableIncome).toBe(100000 + 50000 + 0);
     });
 
     it('caTaxableRatio is 1.0 when all income is earned in CA', () => {
@@ -437,15 +514,16 @@ describe('UserInputStore', () => {
       expect(ratio).toBeLessThan(1);
     });
 
-    it('totalCACalculationBase includes W2, business, options, and investment income minus CA deductions', () => {
+    it('totalCACalculationBase includes W2, business, options, investment income, and Roth conversions minus CA deductions', () => {
       store.addW2Income('Job', 100000);
       store.addBusinessIncome('Self', 20000, 5000); // profit = 15000
+      store.addRothConversion('Roth Conv', 30000);
       store.updateInvestmentIncome('taxableInterest', 'q1', 2000);
       store.hsaContribution = 3000; // Not deductible for CA
       store._401kContribution = 5000; // Deductible pre-tax for CA
-      // Net W2 (100k - 5k 401k) + 15k profit + 2k interest = 112000 CA Worldwide AGI
-      // Minus CA Standard Deduction 11400 = 100600
-      expect(store.totalCACalculationBase).toBe(100600);
+      // Net W2 (100k - 5k 401k) + 15k profit + 30k conversion + 2k interest = 142000 CA Worldwide AGI
+      // Minus CA Standard Deduction 11400 = 130600
+      expect(store.totalCACalculationBase).toBe(130600);
     });
 
     it('caTaxableRatio is CA taxable income divided by full calculation base', () => {
@@ -462,11 +540,14 @@ describe('UserInputStore', () => {
     it('should serialize all fields to a plain object', () => {
       const store = new UserInputStore(makeTestData());
       store.addW2Income('Test', 50000, 5000);
+      store.addRothConversion('Conversion', 25000, '2026-06-01', 5000);
       store.hsaContribution = 3000;
       store.taxPaidQ1 = 2000;
 
       const data = store.serialize();
       expect(data.w2Income[0].income).toBe(50000);
+      expect(data.rothConversions[0].amount).toBe(25000);
+      expect(data.rothConversions[0].withholding).toBe(5000);
       expect(data.hsaContribution).toBe(3000);
       expect(data.taxPaidQ1).toBe(2000);
     });
@@ -475,6 +556,7 @@ describe('UserInputStore', () => {
       const store = new UserInputStore(makeTestData());
       store.addW2Income('Alice', 80000, 8000);
       store.addBusinessIncome('Consulting', 40000, 5000);
+      store.addRothConversion('Fidelity Rollover', 35000, '2026-05-15', 7000, 0);
       store.hsaContribution = 4000;
       store.taxPaidQ2 = 1500;
       store.foreignTaxCredit = 200;
@@ -485,6 +567,10 @@ describe('UserInputStore', () => {
       expect(store2.w2Income[0].name).toBe('Alice');
       expect(store2.w2Income[0].income).toBe(80000);
       expect(store2.businessIncome[0].income).toBe(40000);
+      expect(store2.rothConversions[0].name).toBe('Fidelity Rollover');
+      expect(store2.rothConversions[0].amount).toBe(35000);
+      expect(store2.rothConversions[0].withholding).toBe(7000);
+      expect(store2.rothConversions[0].caTaxablePercent).toBe(0);
       expect(store2.hsaContribution).toBe(4000);
       expect(store2.taxPaidQ2).toBe(1500);
       expect(store2.foreignTaxCredit).toBe(200);

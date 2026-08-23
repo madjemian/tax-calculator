@@ -58,7 +58,19 @@ const TaxesPaidTab = observer((props: { store: UserInputStore }) => {
                     value={Math.round(store.totalOptionWithholding)} 
                     displayType={'text'} 
                     thousandSeparator={true} 
-                    prefix={'$'}
+                    prefix={'$'} 
+                    style={{ fontSize: '1.1em', fontWeight: 'bold' }}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td style={{ width: '50%' }}><strong>Roth Conversion Withholding</strong></td>
+                <td style={{ width: '50%' }}>
+                  <NumericFormat 
+                    value={Math.round(store.totalRothConversionWithholding)} 
+                    displayType={'text'} 
+                    thousandSeparator={true} 
+                    prefix={'$'} 
                     style={{ fontSize: '1.1em', fontWeight: 'bold' }}
                   />
                 </td>
